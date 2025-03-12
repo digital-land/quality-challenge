@@ -56,15 +56,28 @@ many of which are devolved to LPAs (currently [311 organisations](https://datase
 Once we have source and endpoint data, we need to monitor the LPA sites for changes, in particular publication of new endpoints,
 and changes to licensing is a time-consuming and error-prone activity. 
 
-## Comparing entities against information sources
+## Comparing entities against documents and documentation
 
-## Finding and checking entity document links
+The planning data platform is an index of material information provided by LPAs and other organisations.
 
-## Finding duplicate entities
+Each entity includes a link to the `documentation-url`, the webpage with human readable content describing the entity, and a `document-url` usually a PDF containint the material information, including the `name` of the entity, a `start-date` (when the entity came into force) 
+and where the entity applies. For example:
+
+* The entity [6100046](https://www.planning.data.gov.uk/entity/6100046) represents an Article 4 Direction ([PDF](https://www.camden.gov.uk/documents/20142/4842163/South+Hill+Park+Article+4.pdf/47a3f006-5739-9ac3-363b-b0025e487ec4)). The direction removes permitted development rights from a single area represented by the entity [https://www.planning.data.gov.uk/entity/7010002601], found using a [datasette query](https://datasette.planning.data.gov.uk/article-4-direction-area?sql=select+entity%2C+prefix%2C+reference%2C+name%2C+geojson%2C+geometry%2C+json%2C+%0D%0A++json_extract+%28json%2C+%27%24.article-4-direction%27%29+AS+article_4_direction%2C+organisation_entity%2C+start_date%2C+end_date+from+entity+where+article_4_direction+%3D+%27A4SHP1%27).
+
+Can we highlight where the name, date and other information in our data differs or is missing from those in these webpages and documents?
+
+For example, we manually reviewed [Conservation areas in Barnet](https://digital-land.github.io/barnet-conservation-areas/). Can we scale this approach to provide similar reporting for other LPAs and datasets?
+
+## Finding possibly duplicate entities
 
 ## Comparing boundaries to geographical features
 
 ## Finding and reconciling information from alternative sources
+
+Can we find notices and links to other official information about entities to help users with reconciliation and improve the trustworthy of data on the platform?
+
+* [Knotty Ash]() is a conservation area 
 
 # Resources
 
