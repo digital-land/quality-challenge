@@ -1,0 +1,25 @@
+[project]
+name = "crawler"
+version = "0.1.0"
+description = "An async web crawler with configurable filtering and scoring"
+authors = [
+    {name = "Simona Lihosithova",email = "simona.lihosithova@faculty.ai"}
+]
+packages = [{include = "crawler"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = "3.11.9"
+dependencies = [
+    "polars (==1.25.*)",
+    "jupyter (>=1.1.1,<2.0.0)",
+    "crawl4ai (==0.5.0.post4)",
+    "sentence-transformers (>=4.0.1,<5.0.0)"
+]
+
+[tool.poetry]
+
+[tool.poetry.group.dev.dependencies]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
