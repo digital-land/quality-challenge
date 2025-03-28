@@ -1,5 +1,12 @@
-pip install -r requirements.txt
+#!/bin/bash
 
-crawl4ai-setup
+# change to root directory
+cd "$(realpath "$(dirname "$0")/../..")"
 
-jupyter notebook documentation_url_notebook.ipynb
+# install dependencies
+echo "📦 Activating Poetry environment..."
+poetry install  
+
+# start notebook
+echo "🚀 Starting Jupyter Notebook..."
+poetry run jupyter notebook notebooks/documentation_url/documentation_url_notebook.ipynb
