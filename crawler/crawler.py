@@ -6,7 +6,13 @@ from crawl4ai import AsyncWebCrawler, CrawlerRunConfig, CacheMode
 from crawl4ai.deep_crawling import BestFirstCrawlingStrategy
 from crawl4ai.content_scraping_strategy import LXMLWebScrapingStrategy
 from crawl4ai.deep_crawling.scorers import KeywordRelevanceScorer
-from crawl4ai.deep_crawling.filters import FilterChain, URLPatternFilter, ContentRelevanceFilter, SEOFilter, ContentTypeFilter
+from crawl4ai.deep_crawling.filters import (
+    FilterChain,
+    URLPatternFilter,
+    ContentRelevanceFilter,
+    SEOFilter,
+    ContentTypeFilter,
+)
 
 
 class Crawler:
@@ -27,14 +33,13 @@ class Crawler:
         include_external: bool = False,
         keyword_scorer: Optional[dict] = None,
         filters: Optional[List[Union[dict, object]]] = None,
-        cache_enabled: bool = False
+        cache_enabled: bool = False,
     ):
         self.max_depth = max_depth
         self.include_external = include_external
         self.keyword_scorer = self._initialize_scorer(keyword_scorer)
         self.filter_chain = self._initialize_filters(filters)
         self.cache_enabled = cache_enabled
-
 
     def _initialize_filters(self, filters) -> List[object]:
         """Converts filter dictionaries into filter objects."""
@@ -44,27 +49,41 @@ class Crawler:
                 if isinstance(f, dict):
                     filter_type = f.get("type")
                     if filter_type == "SEOFilter":
-                        filter_list.append(SEOFilter(threshold=f.get("threshold", 0.6), keywords=f.get("keywords", [])))
+                        filter_list.append(
+                            SEOFilter(
+                                threshold=f.get("threshold", 0.6),
+                                keywords=f.get("keywords", []),
+                            )
+                        )
                     elif filter_type == "ContentRelevanceFilter":
-                        filter_list.append(ContentRelevanceFilter(query=f.get("query", ""), threshold=f.get("threshold", 0.2)))
+                        filter_list.append(
+                            ContentRelevanceFilter(
+                                query=f.get("query", ""),
+                                threshold=f.get("threshold", 0.2),
+                            )
+                        )
                     elif filter_type == "ContentTypeFilter":
-                        filter_list.append(ContentTypeFilter(allowed_types=f.get("allowed_types", ["text/html"])))
+                        filter_list.append(
+                            ContentTypeFilter(
+                                allowed_types=f.get("allowed_types", ["text/html"])
+                            )
+                        )
                     elif filter_type == "URLPatternFilter":
-                        filter_list.append(URLPatternFilter(patterns=f.get("patterns", [])))
+                        filter_list.append(
+                            URLPatternFilter(patterns=f.get("patterns", []))
+                        )
                 elif isinstance(f, object):
                     filter_list.append(f)
 
         return FilterChain(filter_list)
-
 
     def _initialize_scorer(self, keyword_scorer) -> Optional[KeywordRelevanceScorer]:
         """Creates a keyword relevance scorer if keywords are provided."""
         if keyword_scorer:
             return KeywordRelevanceScorer(
                 keywords=keyword_scorer.get("keywords", []),
-                weight=keyword_scorer.get("weight", 1.0)
+                weight=keyword_scorer.get("weight", 1.0),
             )
-
 
     async def deep_crawl(self, url: str) -> List[tuple[str, str]]:
         """
@@ -101,4 +120,3 @@ class Crawler:
                     crawl_data.append((result.url, result.markdown.raw_markdown))
 
         return crawl_data
-
