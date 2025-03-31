@@ -1,13 +1,14 @@
 import numpy as np
 import polars as pl
 import asyncio
-from typing import List, Optional, Union
+from typing import Optional
 from crawl4ai import AsyncWebCrawler, CrawlerRunConfig, CacheMode
 from crawl4ai.deep_crawling import BestFirstCrawlingStrategy
 from crawl4ai.content_scraping_strategy import LXMLWebScrapingStrategy
 from crawl4ai.deep_crawling.scorers import KeywordRelevanceScorer
 from crawl4ai.deep_crawling.filters import (
     FilterChain,
+    URLFilter,
     URLPatternFilter,
     ContentRelevanceFilter,
     SEOFilter,
@@ -19,12 +20,11 @@ class Crawler:
     """
     A class-based implementation of an asynchronous web crawler using Crawl4AI.
 
-    Attributes:
-        max_depth (int): Maximum depth for crawling.
-        include_external (bool): Whether to include external links.
-        keyword_scorer (Optional[dict]): Dictionary with 'keywords' (list) and 'weight' (float).
-        filters (Optional[List[Union[dict, object]]]): List of filter configurations or filter instances.
-        cache_enabled (bool): Whether caching is enabled.
+    :param max_depth: Maximum depth for crawling.
+    :param include_external: Whether to include external links.
+    :param keyword_scorer: Dictionary with 'keywords' (list) and 'weight' (float).
+    :param filters: List of filter configurations or filter instances.
+    :param cache_enabled: Whether caching is enabled.
     """
 
     def __init__(
@@ -32,7 +32,7 @@ class Crawler:
         max_depth: int = 6,
         include_external: bool = False,
         keyword_scorer: Optional[dict] = None,
-        filters: Optional[List[Union[dict, object]]] = None,
+        filters: Optional[list[dict | URLFilter]] = None,
         cache_enabled: bool = False,
     ):
         self.max_depth = max_depth
@@ -41,7 +41,7 @@ class Crawler:
         self.filter_chain = self._initialize_filters(filters)
         self.cache_enabled = cache_enabled
 
-    def _initialize_filters(self, filters) -> List[object]:
+    def _initialize_filters(self, filters) -> FilterChain:
         """Converts filter dictionaries into filter objects."""
         filter_list = []
         if filters:
@@ -85,15 +85,13 @@ class Crawler:
                 weight=keyword_scorer.get("weight", 1.0),
             )
 
-    async def deep_crawl(self, url: str) -> List[tuple[str, str]]:
+    async def deep_crawl(self, url: str) -> list[tuple[str, str]]:
         """
         Performs a deep crawl on the given URL.
 
-        Args:
-            url (str): The starting URL.
+        :param url: The starting URL.
 
-        Returns:
-            List[Tuple[str, str]]: A list of tuples containing the URL and its markdown content.
+        :return: A list of tuples of (url, markdown)
         """
         # Create crawler configuration
         config = CrawlerRunConfig(
