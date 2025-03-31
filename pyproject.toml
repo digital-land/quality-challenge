@@ -1,11 +1,10 @@
 [project]
-name = "crawler"
+name = "quality-challenge"
 version = "0.1.0"
 description = "An async web crawler with configurable filtering and scoring"
 authors = [
     {name = "Simona Lihosithova",email = "simona.lihosithova@faculty.ai"}
 ]
-packages = [{include = "crawler"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = "3.11.9"
@@ -17,6 +16,9 @@ dependencies = [
 ]
 
 [tool.poetry]
+packages = [
+{ include = "data_quality_utils", from = "src" }
+]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
