@@ -39,20 +39,20 @@ class Crawler:
     def _initialize_filters(self, filters) -> List[object]:
         """Converts filter dictionaries into filter objects."""
         filter_list = []
-
-        for f in filters:
-            if isinstance(f, dict):
-                filter_type = f.get("type")
-                if filter_type == "SEOFilter":
-                    filter_list.append(SEOFilter(threshold=f.get("threshold", 0.6), keywords=f.get("keywords", [])))
-                elif filter_type == "ContentRelevanceFilter":
-                    filter_list.append(ContentRelevanceFilter(query=f.get("query", ""), threshold=f.get("threshold", 0.2)))
-                elif filter_type == "ContentTypeFilter":
-                    filter_list.append(ContentTypeFilter(allowed_types=f.get("allowed_types", ["text/html"])))
-                elif filter_type == "URLPatternFilter":
-                    filter_list.append(URLPatternFilter(patterns=f.get("patterns", [])))
-            elif isinstance(f, object):
-                filter_list.append(f)
+        if filters:
+            for f in filters:
+                if isinstance(f, dict):
+                    filter_type = f.get("type")
+                    if filter_type == "SEOFilter":
+                        filter_list.append(SEOFilter(threshold=f.get("threshold", 0.6), keywords=f.get("keywords", [])))
+                    elif filter_type == "ContentRelevanceFilter":
+                        filter_list.append(ContentRelevanceFilter(query=f.get("query", ""), threshold=f.get("threshold", 0.2)))
+                    elif filter_type == "ContentTypeFilter":
+                        filter_list.append(ContentTypeFilter(allowed_types=f.get("allowed_types", ["text/html"])))
+                    elif filter_type == "URLPatternFilter":
+                        filter_list.append(URLPatternFilter(patterns=f.get("patterns", [])))
+                elif isinstance(f, object):
+                    filter_list.append(f)
 
         return FilterChain(filter_list)
 
