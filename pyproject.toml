@@ -32,6 +32,7 @@ nbqa = "^1.9.1"
 isort = "^6.0.1"
 flake8 = "^7.2.0"
 pyupgrade = "^3.19.1"
+pdfminer-six = "^20250327"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
