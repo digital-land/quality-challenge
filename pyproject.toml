@@ -24,6 +24,7 @@ packages = [
 pytest = "^8.3.5"
 pytest-asyncio = "^0.26.0"
 black = "^25.1.0"
+pdfminer-six = "^20250327"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
