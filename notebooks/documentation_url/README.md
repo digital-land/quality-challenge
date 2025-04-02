@@ -5,7 +5,7 @@ This project uses `crawl4ai` for deep web crawling and `Jupyter Notebook` for in
 
 ## Prerequisites
 - **Python 3.11.9** (Recommended, but other 3.11 versions may work)
-- Your favourite **virtual environment** 
+- Your favourite **virtual environment**
 
 ## Setup Instructions
 Run the setup script:

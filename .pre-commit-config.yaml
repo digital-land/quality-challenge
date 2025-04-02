@@ -1,0 +1,42 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v5.0.0
+  hooks:
+  - id: end-of-file-fixer
+  - id: trailing-whitespace
+
+- repo: https://github.com/psf/black
+  rev: 25.1.0
+  hooks:
+  - id: black
+
+- repo: https://github.com/asottile/pyupgrade
+  rev: v3.19.1
+  hooks:
+  -   id: pyupgrade
+
+- repo: https://github.com/pycqa/isort
+  rev: 6.0.1
+  hooks:
+  - id: isort
+    args: [--profile=black]
+
+- repo: https://github.com/PyCQA/flake8
+  rev: 7.2.0
+  hooks:
+  - id: flake8
+    args: ["--ignore=E501"]
+
+- repo: https://github.com/nbQA-dev/nbQA
+  rev: 1.9.1
+  hooks:
+  - id: nbqa-black
+  - id: nbqa-pyupgrade
+    args: [ --py39-plus ]
+  - id: nbqa-isort
+    args: [--profile=black]
+
+- repo: https://github.com/kynan/nbstripout
+  rev: 0.8.1
+  hooks:
+    - id: nbstripout

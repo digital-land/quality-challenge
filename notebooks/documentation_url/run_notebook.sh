@@ -5,7 +5,7 @@ cd "$(realpath "$(dirname "$0")/../..")"
 
 # install dependencies
 echo "📦 Activating Poetry environment..."
-poetry install  
+poetry install
 
 # start notebook
 echo "🚀 Starting Jupyter Notebook..."
