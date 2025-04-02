@@ -135,6 +135,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.python-version
 
 # Spyder project settings
 .spyderproject
@@ -169,3 +170,11 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# DS_Store
+.DS_Store
+
+# Large data csvs, for if the num_results is None or very large.
+notebooks/documentation_url/data/chunking_csvs/
+notebooks/documentation_url/data/testing_csvs/
+datasette_data.csv
