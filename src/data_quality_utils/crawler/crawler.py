@@ -1,28 +1,28 @@
-import numpy as np
-import polars as pl
-import asyncio
 from typing import Optional
-from crawl4ai import AsyncWebCrawler, CrawlerRunConfig, CacheMode
-from crawl4ai.deep_crawling import BestFirstCrawlingStrategy
+
+from crawl4ai import AsyncWebCrawler, CacheMode, CrawlerRunConfig
 from crawl4ai.content_scraping_strategy import LXMLWebScrapingStrategy
-from crawl4ai.deep_crawling.scorers import KeywordRelevanceScorer
+from crawl4ai.deep_crawling import BestFirstCrawlingStrategy
 from crawl4ai.deep_crawling.filters import (
+    ContentRelevanceFilter,
+    ContentTypeFilter,
     FilterChain,
+    SEOFilter,
     URLFilter,
     URLPatternFilter,
-    ContentRelevanceFilter,
-    SEOFilter,
-    ContentTypeFilter,
 )
+from crawl4ai.deep_crawling.scorers import KeywordRelevanceScorer
 
 
 class Crawler:
     """
-    A class-based implementation of an asynchronous web crawler using Crawl4AI.
+    A class-based implementation of an asynchronous web crawler
+    using Crawl4AI.
 
     :param max_depth: Maximum depth for crawling.
     :param include_external: Whether to include external links.
-    :param keyword_scorer: Dictionary with 'keywords' (list) and 'weight' (float).
+    :param keyword_scorer: Dictionary with 'keywords' (list) and
+        'weight' (float).
     :param filters: List of filter configurations or filter instances.
     :param cache_enabled: Whether caching is enabled.
     """

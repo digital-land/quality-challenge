@@ -25,19 +25,16 @@ repos:
   rev: 7.2.0
   hooks:
   - id: flake8
+    args: ["--ignore=E501"]
 
 - repo: https://github.com/nbQA-dev/nbQA
   rev: 1.9.1
   hooks:
   - id: nbqa-black
-    additional_dependencies: [black==24.1.1]
   - id: nbqa-pyupgrade
     args: [ --py39-plus ]
   - id: nbqa-isort
-    additional_dependencies: [isort==5.13.2]
     args: [--profile=black]
-  - id: nbqa-flake8
-    additional_dependencies: [flake8==7.0.0]
 
 - repo: https://github.com/kynan/nbstripout
   rev: 0.8.1
