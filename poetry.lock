@@ -484,6 +484,27 @@ files = [
 jinja2 = ">=3"
 
 [[package]]
+name = "brdr"
+version = "0.9.0"
+description = "BRDR - a Python library to assist in realigning (multi-)polygons (OGC Simple Features) to reference borders "
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "brdr-0.9.0-py3-none-any.whl", hash = "sha256:1f9d61e8a2ff07ae62442afa9e2b90501beda368f37f4bdbcd5226756d757ed4"},
+    {file = "brdr-0.9.0.tar.gz", hash = "sha256:ead5f38ac781f27dd815104eedf80f70225ca0e685dd9ce14d3a706f92aa7698"},
+]
+
+[package.dependencies]
+geojson = ">=3.1,<4.0"
+requests = ">=2.32,<3.0"
+shapely = ">=2.0,<3.0"
+
+[package.extras]
+dev = ["black (==24.10.0)", "flake8 (==7.1.1)", "geopandas (==1.0.1)", "hatchling (==1.27.0)", "matplotlib (==3.8.4)", "mypy (==1.13.0)", "pip-tools (==7.4.1)", "pytest (==8.3.3)", "pytest-cov (==6.0.0)", "responses (==0.25.3)", "toml (==0.10.2)", "types-requests (==2.31.0.20240406)"]
+test = ["pytest (==8.3.3)", "pytest-cov (==6.0.0)", "responses (==0.25.3)", "toml (==0.10.2)"]
+
+[[package]]
 name = "certifi"
 version = "2025.1.31"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -1526,6 +1547,18 @@ groups = ["main"]
 files = [
     {file = "geographiclib-2.0-py3-none-any.whl", hash = "sha256:6b7225248e45ff7edcee32becc4e0a1504c606ac5ee163a5656d482e0cd38734"},
     {file = "geographiclib-2.0.tar.gz", hash = "sha256:f7f41c85dc3e1c2d3d935ec86660dc3b2c848c83e17f9a9e51ba9d5146a15859"},
+]
+
+[[package]]
+name = "geojson"
+version = "3.2.0"
+description = "Python bindings and utilities for GeoJSON"
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+files = [
+    {file = "geojson-3.2.0-py3-none-any.whl", hash = "sha256:69d14156469e13c79479672eafae7b37e2dcd19bdfd77b53f74fa8fe29910b52"},
+    {file = "geojson-3.2.0.tar.gz", hash = "sha256:b860baba1e8c6f71f8f5f6e3949a694daccf40820fa8f138b3f712bd85804903"},
 ]
 
 [[package]]
@@ -3805,6 +3838,32 @@ files = [
     {file = "orjson-3.10.16-cp39-cp39-win_amd64.whl", hash = "sha256:c338dc2296d1ed0d5c5c27dfb22d00b330555cb706c2e0be1e1c3940a0895905"},
     {file = "orjson-3.10.16.tar.gz", hash = "sha256:d2aaa5c495e11d17b9b93205f5fa196737ee3202f000aaebf028dc9a73750f10"},
 ]
+
+[[package]]
+name = "osmnx"
+version = "2.0.2"
+description = "Download, model, analyze, and visualize street networks and other geospatial features from OpenStreetMap"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "osmnx-2.0.2-py3-none-any.whl", hash = "sha256:1f7de2af6f22a6f802f459958b7fe07aad242f62db39c651bf57da2b942d2ba8"},
+    {file = "osmnx-2.0.2.tar.gz", hash = "sha256:90d13cdfc6214d35214cf04736426c20dfa325ba6da473b212c839b25c795320"},
+]
+
+[package.dependencies]
+geopandas = ">=1.0"
+networkx = ">=2.5"
+numpy = ">=1.22"
+pandas = ">=1.4"
+requests = ">=2.27"
+shapely = ">=2.0"
+
+[package.extras]
+entropy = ["scipy (>=1.5)"]
+neighbors = ["scikit-learn (>=0.23)", "scipy (>=1.5)"]
+raster = ["rasterio (>=1.3)", "rio-vrt (>=0.3)"]
+visualization = ["matplotlib (>=3.5)"]
 
 [[package]]
 name = "overrides"
@@ -6905,4 +6964,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = "3.11.9"
-content-hash = "d47587672af564d38f1bc177f7dcf1b236cf63d721a4c4171805bb24846b9def"
+content-hash = "e1b776f702e624034bb8e99194fa505551801736cd7b228c1cb48b0538969506"
