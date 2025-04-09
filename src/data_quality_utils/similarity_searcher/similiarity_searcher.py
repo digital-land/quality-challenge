@@ -35,7 +35,7 @@ class SimilaritySearcher:
         )
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
-        self.chunk_separators = DEFAULT_SEPARATORS
+        self.chunk_separators = separators
         self.keep_chunk_separators = keep_chunk_separators
 
     def search(
@@ -43,7 +43,7 @@ class SimilaritySearcher:
         query: str,
         document_df: pl.DataFrame,
         keyword_filters: None | list[str] = None,
-    ) -> dict[str, float]:
+    ) -> pl.DataFrame:
         """Find best matching document based on embeddings.
 
         :param query: Text to compare documents to, documents are ranked by embedding
@@ -68,11 +68,11 @@ class SimilaritySearcher:
         # get similarity scores
         document_df = document_df.with_columns(
             similarity=util.cos_sim(
-                query_embedding, np.stack(document_df["embedding"].to_numpy())
+                query_embedding, np.stack(document_df["embedding"].to_numpy())  # type: ignore
             )
             .numpy()
             .flatten()
-        )
+        )  # type: ignore
 
         if self.strategy == "document":
             return document_df[["id", "similarity"]].sort(

@@ -33,6 +33,11 @@ flake8 = "^7.2.0"
 pyupgrade = "^3.19.1"
 pdfminer-six = "^20250327"
 black = {extras = ["jupyter"], version = "^25.1.0"}
+mypy = "^1.15.0"
+
+[[tool.mypy.overrides]]
+module = ["crawl4ai.*"]
+ignore_missing_imports = true
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
