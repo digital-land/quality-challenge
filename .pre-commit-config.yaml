@@ -25,7 +25,7 @@ repos:
   rev: 7.2.0
   hooks:
   - id: flake8
-    args: ["--ignore=E501"]
+    args: ["--ignore=E501,W503"]
 
 - repo: https://github.com/nbQA-dev/nbQA
   rev: 1.9.1
