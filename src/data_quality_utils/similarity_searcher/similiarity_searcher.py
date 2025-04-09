@@ -35,7 +35,7 @@ class SimilaritySearcher:
         )
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
-        self.chunk_separators = DEFAULT_SEPARATORS
+        self.chunk_separators = separators
         self.keep_chunk_separators = keep_chunk_separators
 
     def search(
