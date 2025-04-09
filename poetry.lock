@@ -422,10 +422,12 @@ files = [
 
 [package.dependencies]
 click = ">=8.0.0"
+ipython = {version = ">=7.8.0", optional = true, markers = "extra == \"jupyter\""}
 mypy-extensions = ">=0.4.3"
 packaging = ">=22.0"
 pathspec = ">=0.9.0"
 platformdirs = ">=2"
+tokenize-rt = {version = ">=3.2.0", optional = true, markers = "extra == \"jupyter\""}
 
 [package.extras]
 colorama = ["colorama (>=0.4.3)"]
@@ -6500,4 +6502,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = "~3.11.9"
-content-hash = "3ebc02d77f1098b15ce2b47dc15eed77d76a1f592040cf8a426b14163137e9b2"
+content-hash = "313b3136da3741faccdff090bda0ae2e334736d04cdaf4840b0681a2cbd13deb"

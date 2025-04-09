@@ -26,13 +26,13 @@ packages = [
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
 pytest-asyncio = "^0.26.0"
-black = "^25.1.0"
 pre-commit = "^4.2.0"
 nbqa = "^1.9.1"
 isort = "^6.0.1"
 flake8 = "^7.2.0"
 pyupgrade = "^3.19.1"
 pdfminer-six = "^20250327"
+black = {extras = ["jupyter"], version = "^25.1.0"}
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
