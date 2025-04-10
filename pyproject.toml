@@ -3,7 +3,10 @@ name = "quality-challenge"
 version = "0.1.0"
 description = "An async web crawler with configurable filtering and scoring"
 authors = [
-    {name = "Simona Lihosithova",email = "simona.lihosithova@faculty.ai"}
+    {name = "Jon Holdship",email = "jon.holdship@faculty.ai"},
+    {name = "Simona Lihosithova",email = "simona.lihosithova@faculty.ai"},
+        {name = "Oliver Newcombe",email = "oliver.newcombe2@faculty.ai"}
+
 ]
 license = {text = "MIT"}
 readme = "README.md"
@@ -15,7 +18,8 @@ dependencies = [
     "sentence-transformers (>=4.0.1,<5.0.0)",
     "seaborn (>=0.13.2,<0.14.0)",
     "pandas (>=2.2.3,<3.0.0)",
-    "langchain (>=0.3.22,<0.4.0)"
+    "langchain (>=0.3.22,<0.4.0)",
+    "markitdown[pdf] (>=0.1.1,<0.2.0)"
 ]
 
 [tool.poetry]
@@ -31,7 +35,6 @@ nbqa = "^1.9.1"
 isort = "^6.0.1"
 flake8 = "^7.2.0"
 pyupgrade = "^3.19.1"
-pdfminer-six = "^20250327"
 black = {extras = ["jupyter"], version = "^25.1.0"}
 mypy = "^1.15.0"
 
