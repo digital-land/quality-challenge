@@ -7,7 +7,7 @@ authors = [
 ]
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = "3.11.9"
+requires-python = "~3.11.9"
 dependencies = [
     "polars (==1.25.*)",
     "jupyter (>=1.1.1,<2.0.0)",
@@ -44,6 +44,11 @@ nbqa = "^1.9.1"
 isort = "^6.0.1"
 flake8 = "^7.2.0"
 pyupgrade = "^3.19.1"
+mypy = "^1.15.0"
+
+[[tool.mypy.overrides]]
+module = ["crawl4ai.*"]
+ignore_missing_imports = true
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
