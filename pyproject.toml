@@ -27,8 +27,6 @@ dependencies = [
     "ipywidgets (>=8.1.5,<9.0.0)",
     "plotly (>=6.0.1,<7.0.0)",
     "anywidget (>=0.9.18,<0.10.0)",
-    "pyquibbler (>=0.3.5,<0.4.0)",
-    "tk-tools (>=0.17.0,<0.18.0)",
     "ipympl (>=0.9.7,<0.10.0)"
 ]
 

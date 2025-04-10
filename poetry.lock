@@ -489,18 +489,6 @@ webencodings = "*"
 css = ["tinycss2 (>=1.1.0,<1.5)"]
 
 [[package]]
-name = "blinker"
-version = "1.9.0"
-description = "Fast, simple object-to-object and broadcast signaling"
-optional = false
-python-versions = ">=3.9"
-groups = ["main"]
-files = [
-    {file = "blinker-1.9.0-py3-none-any.whl", hash = "sha256:ba0efaa9080b619ff2f3459d1d500c57bddea4a6b424b60a91141db6fd2f08bc"},
-    {file = "blinker-1.9.0.tar.gz", hash = "sha256:b4ce2265a7abece45e7cc896e98dbebe6cead56bcf805a3d23136d145f5445bf"},
-]
-
-[[package]]
 name = "branca"
 version = "0.8.1"
 description = "Generate complex HTML+JS pages with Python"
@@ -1141,17 +1129,6 @@ files = [
 ]
 
 [[package]]
-name = "engineering-notation"
-version = "0.10.0"
-description = "Easy engineering notation"
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "engineering_notation-0.10.0-py3-none-any.whl", hash = "sha256:49ff22ba8377673c8cd5f45298b87c41946b5a84583806a4655760124e22c451"},
-]
-
-[[package]]
 name = "executing"
 version = "2.2.0"
 description = "Get the currently executing AST node of a frame, and other information"
@@ -1329,45 +1306,6 @@ files = [
 mccabe = ">=0.7.0,<0.8.0"
 pycodestyle = ">=2.13.0,<2.14.0"
 pyflakes = ">=3.3.0,<3.4.0"
-
-[[package]]
-name = "flask"
-version = "3.1.0"
-description = "A simple framework for building complex web applications."
-optional = false
-python-versions = ">=3.9"
-groups = ["main"]
-files = [
-    {file = "flask-3.1.0-py3-none-any.whl", hash = "sha256:d667207822eb83f1c4b50949b1623c8fc8d51f2341d65f72e1a1815397551136"},
-    {file = "flask-3.1.0.tar.gz", hash = "sha256:5f873c5184c897c8d9d1b05df1e3d01b14910ce69607a117bd3277098a5836ac"},
-]
-
-[package.dependencies]
-blinker = ">=1.9"
-click = ">=8.1.3"
-itsdangerous = ">=2.2"
-Jinja2 = ">=3.1.2"
-Werkzeug = ">=3.1"
-
-[package.extras]
-async = ["asgiref (>=3.2)"]
-dotenv = ["python-dotenv"]
-
-[[package]]
-name = "flask-cors"
-version = "5.0.1"
-description = "A Flask extension simplifying CORS support"
-optional = false
-python-versions = "<4.0,>=3.9"
-groups = ["main"]
-files = [
-    {file = "flask_cors-5.0.1-py3-none-any.whl", hash = "sha256:fa5cb364ead54bbf401a26dbf03030c6b18fb2fcaf70408096a572b409586b0c"},
-    {file = "flask_cors-5.0.1.tar.gz", hash = "sha256:6ccb38d16d6b72bbc156c1c3f192bc435bfcc3c2bc864b2df1eb9b2d97b2403c"},
-]
-
-[package.dependencies]
-flask = ">=0.9"
-Werkzeug = ">=0.7"
 
 [[package]]
 name = "folium"
@@ -1955,28 +1893,6 @@ files = [
 ]
 
 [[package]]
-name = "ipycytoscape"
-version = "1.3.3"
-description = "A Cytoscape widget for Jupyter"
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "ipycytoscape-1.3.3-py2.py3-none-any.whl", hash = "sha256:4bc205724971f5f7a3fc2b09dfec20c357c4c6dfa2b4bd41e7c33c995c3f6906"},
-    {file = "ipycytoscape-1.3.3.tar.gz", hash = "sha256:b6f3199df034f088e92d388e27e629f58ae2901b213cb9299e5b564272f9a2f8"},
-]
-
-[package.dependencies]
-ipywidgets = ">=7.6.0"
-spectate = ">=1.0.0"
-
-[package.extras]
-docs = ["jupyter-sphinx (>=0.3.1)", "nbsphinx", "nbsphinx-link", "networkx", "pandas", "sphinx", "sphinx-autobuild (>=2020.9.1)", "sphinx-copybutton", "sphinx-rtd-theme"]
-examples = ["monotonic", "pandas", "py2neo"]
-neo4j = ["monotonic", "py2neo"]
-test = ["nbclassic (>=0.2.8)", "nbval", "networkx", "pandas", "pre-commit", "pytest (>4.6)", "pytest-cov"]
-
-[[package]]
 name = "ipykernel"
 version = "6.29.5"
 description = "IPython Kernel for Jupyter"
@@ -2051,21 +1967,6 @@ traitlets = "<6"
 
 [package.extras]
 docs = ["myst-nb", "sphinx (>=1.5)", "sphinx-book-theme", "sphinx-copybutton", "sphinx-thebe", "sphinx-togglebutton"]
-
-[[package]]
-name = "ipynbname"
-version = "2024.1.0.0"
-description = "Simply returns either notebook filename or the full path to the notebook when run from Jupyter notebook in browser."
-optional = false
-python-versions = "<4,>=3.4"
-groups = ["main"]
-files = [
-    {file = "ipynbname-2024.1.0.0-py3-none-any.whl", hash = "sha256:cdd098cfe1986baa1d4ecb0b42f7a2b63646f25570f57163239beba73f26d65a"},
-    {file = "ipynbname-2024.1.0.0.tar.gz", hash = "sha256:1d3c69cdee8a97814f456a7204e9cc195b4bbb4b9e45cbe757796b162493f606"},
-]
-
-[package.dependencies]
-ipykernel = "*"
 
 [[package]]
 name = "ipython"
@@ -2167,18 +2068,6 @@ files = [
 [package.extras]
 colors = ["colorama"]
 plugins = ["setuptools"]
-
-[[package]]
-name = "itsdangerous"
-version = "2.2.0"
-description = "Safely pass data to untrusted environments and back."
-optional = false
-python-versions = ">=3.8"
-groups = ["main"]
-files = [
-    {file = "itsdangerous-2.2.0-py3-none-any.whl", hash = "sha256:c6242fc49e35958c8b15141343aa660db5fc54d4f13a1db01a3f5891b98700ef"},
-    {file = "itsdangerous-2.2.0.tar.gz", hash = "sha256:e0050c0b7da1eea53ffaf149c0cfbb5c6e2e2b69c4bef22c81fa6eb73e5f6173"},
-]
 
 [[package]]
 name = "jedi"
@@ -5054,33 +4943,6 @@ files = [
 certifi = "*"
 
 [[package]]
-name = "pyquibbler"
-version = "0.3.5"
-description = "Interactive, reproducible and efficient data analytics"
-optional = false
-python-versions = ">=3.10"
-groups = ["main"]
-files = [
-    {file = "pyquibbler-0.3.5-py3-none-any.whl", hash = "sha256:10f276954fb3e1ff536eed40bb5ebe782cd4d995754a9e535f29a36bd1ebd16d"},
-]
-
-[package.dependencies]
-flask = ">=2.1.1"
-flask_cors = ">=3.0.10"
-ipycytoscape = "*"
-ipynbname = ">=2021.3.2"
-IPython = "*"
-ipywidgets = ">=8.1"
-matplotlib = ">=3.9.1"
-numpy = ">=2.0.1"
-traitlets = "*"
-varname = ">=0.13"
-
-[package.extras]
-dev = ["psutil", "pytest", "pytest-benchmark", "pytest-benchmark", "pytest-cov", "pytest-pep8", "requests", "selenium"]
-sphinx = ["myst-parser", "sphinx", "sphinx_rtd_theme"]
-
-[[package]]
 name = "pytest"
 version = "8.3.5"
 description = "pytest: simple powerful testing with Python"
@@ -6155,18 +6017,6 @@ files = [
 ]
 
 [[package]]
-name = "spectate"
-version = "1.0.1"
-description = "Track changes to mutable data types."
-optional = false
-python-versions = ">=3.6"
-groups = ["main"]
-files = [
-    {file = "spectate-1.0.1-py2.py3-none-any.whl", hash = "sha256:c4585194c238979f953fbf2ecf9f94c84d9d0a929432c7104e39984f52c9e718"},
-    {file = "spectate-1.0.1.tar.gz", hash = "sha256:49a2dde0962fcecf120cb361cc293989489078eb29ba1d8c3d342a741e898b7e"},
-]
-
-[[package]]
 name = "sqlalchemy"
 version = "2.0.40"
 description = "Database Abstraction Library"
@@ -6281,17 +6131,6 @@ pure-eval = "*"
 
 [package.extras]
 tests = ["cython", "littleutils", "pygments", "pytest", "typeguard"]
-
-[[package]]
-name = "stringify"
-version = "0.1.1"
-description = "Automatic string encoding ofbinary files into python variables"
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "stringify-0.1.1-py3-none-any.whl", hash = "sha256:f0187b1a288bec62cfa48a33e4b39ae88f298d81bfaf733c566b8e70ecd21b83"},
-]
 
 [[package]]
 name = "sympy"
@@ -6443,22 +6282,6 @@ webencodings = ">=0.4"
 [package.extras]
 doc = ["sphinx", "sphinx_rtd_theme"]
 test = ["pytest", "ruff"]
-
-[[package]]
-name = "tk-tools"
-version = "0.17.0"
-description = "Add your description here"
-optional = false
-python-versions = ">=3.11"
-groups = ["main"]
-files = [
-    {file = "tk_tools-0.17.0-py3-none-any.whl", hash = "sha256:1cb91e6b314c8d909ea5aa565af363e615364be1ae419a03de403f54af1b4a23"},
-    {file = "tk_tools-0.17.0.tar.gz", hash = "sha256:acef54d40c211ebdf368b6ebd367b4835bd6231bee4d76611f1eec223f0dee1a"},
-]
-
-[package.dependencies]
-engineering-notation = ">=0.10.0"
-stringify = ">=0.1.1"
 
 [[package]]
 name = "tokenize-rt"
@@ -6858,24 +6681,6 @@ socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
 zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
-name = "varname"
-version = "0.14.0"
-description = "Dark magics about variable names in python."
-optional = false
-python-versions = "<4.0,>=3.8"
-groups = ["main"]
-files = [
-    {file = "varname-0.14.0-py3-none-any.whl", hash = "sha256:2d7a968ec7cdf8026a54cce808ace2c46718df652189a024eab8da94a4fde928"},
-    {file = "varname-0.14.0.tar.gz", hash = "sha256:35384677e083202a60a8ed18ff336020e5d017cf8dc1691d09485539c45aa38b"},
-]
-
-[package.dependencies]
-executing = ">=2.1,<3.0"
-
-[package.extras]
-all = ["asttokens (==3.*)", "pure_eval (==0.*)"]
-
-[[package]]
 name = "virtualenv"
 version = "20.30.0"
 description = "Virtual Python Environment builder"
@@ -6948,24 +6753,6 @@ files = [
 docs = ["Sphinx (>=6.0)", "myst-parser (>=2.0.0)", "sphinx-rtd-theme (>=1.1.0)"]
 optional = ["python-socks", "wsaccel"]
 test = ["websockets"]
-
-[[package]]
-name = "werkzeug"
-version = "3.1.3"
-description = "The comprehensive WSGI web application library."
-optional = false
-python-versions = ">=3.9"
-groups = ["main"]
-files = [
-    {file = "werkzeug-3.1.3-py3-none-any.whl", hash = "sha256:54b78bf3716d19a65be4fceccc0d1d7b89e608834989dfae50ea87564639213e"},
-    {file = "werkzeug-3.1.3.tar.gz", hash = "sha256:60723ce945c19328679790e3282cc758aa4a6040e4bb330f53d30fa546d44746"},
-]
-
-[package.dependencies]
-MarkupSafe = ">=2.1.1"
-
-[package.extras]
-watchdog = ["watchdog (>=2.3)"]
 
 [[package]]
 name = "widgetsnbextension"
@@ -7357,4 +7144,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = "3.11.9"
-content-hash = "de10a9f56d1d71d7f5961ecb2962b26e042cb4cb9cf238df04ac01a7b5b1f3fc"
+content-hash = "512f6901193d359de834bf14cb6dee3f142beb2ad14c2b9f5ef172c3944fedfe"
