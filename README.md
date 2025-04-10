@@ -6,6 +6,12 @@ Testing and assuring our data quality is intended to complement our with work wi
 
 We expect to incorporate issues identified by these tests into the feedback we give to [data providers](https://submit.planning.data.gov.uk/), to help them improve the availability and quality of their planning data.
 
+# Getting Started
+
+To use this repository, install it with `poetry install`. This will install the `data_quality_utils` module as well as all necessary dependencies.
+
+You can then run the notebooks in `notebooks/` to see how the functionality developed for `data_quality_utils` can be combined to meet the challenges. Each notebook contains explanatory text detailing the method used to complete the challenge, demonstrates the use of the reusable tools, and showcases the solution on a test data set.
+
 # Challenges
 
 ## Finding and maintaining our links to information sources
