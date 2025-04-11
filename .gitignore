@@ -178,3 +178,4 @@ cython_debug/
 notebooks/documentation_url/data/chunking_csvs/
 notebooks/documentation_url/data/testing_csvs/
 datasette_data.csv
+notebooks/tree_classifier/data/
