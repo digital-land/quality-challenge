@@ -8,7 +8,7 @@ We expect to incorporate issues identified by these tests into the feedback we g
 
 # Getting Started
 
-To use this repository, install it with `poetry install`. This will install the `data_quality_utils` module as well as all necessary dependencies.
+To use this repository, install it with `poetry install`. This will install the `data_quality_utils` module as well as all necessary dependencies. To use poetry with jupyter, either point your VSCode notebook environment to the new poetry installation or run jupyeter with `poetry run jupyter notebook`.
 
 You can then run the notebooks in `notebooks/` to see how the functionality developed for `data_quality_utils` can be combined to meet the challenges. Each notebook contains explanatory text detailing the method used to complete the challenge, demonstrates the use of the reusable tools, and showcases the solution on a test data set.
 
