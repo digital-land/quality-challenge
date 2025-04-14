@@ -7,7 +7,7 @@ authors = [
 ]
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = "3.11.9"
+requires-python = "~3.11.9"
 dependencies = [
     "polars (==1.25.*)",
     "jupyter (>=1.1.1,<2.0.0)",
