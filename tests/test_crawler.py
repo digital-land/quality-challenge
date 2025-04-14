@@ -1,7 +1,7 @@
 from crawl4ai.deep_crawling.filters import ContentTypeFilter, URLPatternFilter
 from crawl4ai.deep_crawling.scorers import KeywordRelevanceScorer
 
-from data_quality_utils import Crawler
+from data_quality_utils.crawler import Crawler  # type: ignore
 
 
 def test_crawler_initialization():
