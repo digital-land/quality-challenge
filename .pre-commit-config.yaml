@@ -40,3 +40,12 @@ repos:
   rev: 0.8.1
   hooks:
     - id: nbstripout
+
+
+- repo: local
+  hooks:
+  - id: mypy
+    name: mypy
+    entry: poetry run mypy
+    language: system
+    types: [file, python]

@@ -84,6 +84,7 @@ class Crawler:
                 keywords=keyword_scorer.get("keywords", []),
                 weight=keyword_scorer.get("weight", 1.0),
             )
+        return None
 
     async def deep_crawl(self, url: str) -> list[tuple[str, str]]:
         """
