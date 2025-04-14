@@ -1,46 +1,101 @@
 import numpy as np
 import plotly.graph_objects as go
-from shapely import MultiLineString, MultiPolygon
+from geopandas import GeoDataFrame, GeoSeries
+from shapely import LineString, MultiLineString, MultiPolygon
+
+
+def get_plotting_polygons(
+    original_df: GeoDataFrame,
+    base_features_df: GeoSeries,
+    aligned_df: GeoDataFrame,
+    diff_df: GeoDataFrame,
+    base_crs: str,
+) -> tuple[
+    MultiPolygon,
+    MultiPolygon,
+    MultiPolygon,
+    MultiPolygon,
+]:
+    """Standardises forms of polygon_matching polygons for plotting.
+
+    :param original_df: GeoDataFrame with original boundary.
+    :param base_features_df: GeoSeries with base polygon features from Open Street Map.
+    :param aligned_df: GeoDataFrame with new boundary.
+    :param diff_df: GeoDataFrame with areas that differ to original boundary.
+    :param base_crs: Co-ordinate reference system we use as a base.
+    :return: Tuple of standardised Polygons/Multipolygons in same order.
+    """
+    original_border = original_df["geometry"].to_crs(base_crs)[0]
+    new_border = MultiPolygon(list(aligned_df["geometry"].to_crs(base_crs)))
+    base_features = MultiPolygon(list(base_features_df.explode().to_crs(base_crs)))
+    difference_area = base_features.intersection(diff_df["geometry"].to_crs(base_crs))
+    difference_area = difference_area.explode()
+    difference_area = difference_area[
+        difference_area.geometry.geom_type.isin(["Polygon", "MultiPolygon"])
+    ]
+    difference_area = MultiPolygon(list(difference_area))
+
+    return original_border, base_features, new_border, difference_area
 
 
 def polygon_prep(
-    polygon,
-):
-    # Need to convert from crs to co-ords for this plotly method
-    lons = []
-    lats = []
-    # Shortcut to avoid separate functions
-    if polygon.geom_type == "Polygon":
-        polygon = MultiPolygon([polygon])
+    multi_polygon: MultiPolygon,
+) -> tuple[list[float | None], list[float | None]]:
+    """Prepares polygons for plotting.
 
-    for poly in polygon.geoms:
+    :param polygon: MultiPolygon to plot.
+    :return: Two lists of co-ordinates to plot.
+    """
+    # Need to convert from crs to co-ords for this plotly method
+    lons: list[float | None] = []
+    lats: list[float | None] = []
+
+    for poly in multi_polygon.geoms:
         boundary = poly.boundary
         if isinstance(boundary, MultiLineString):
-            boundary = boundary.geoms[0]
-        x_coords, y_coords = boundary.coords.xy
-        lon, lat = x_coords, y_coords
-        lons += list(lon)
-        lats += list(lat)
-        # Need to add separator for multiple polygons
-        lons.append(None)
-        lats.append(None)
+            single_boundary = boundary.geoms[0]
+            x_coords, y_coords = single_boundary.coords.xy
+            lon, lat = x_coords, y_coords
+            lons += list(lon)
+            lats += list(lat)
+            lons.append(None)
+            lats.append(None)
+        elif isinstance(boundary, LineString):
+            x_coords, y_coords = boundary.coords.xy
+            lon, lat = x_coords, y_coords
+            lons += list(lon)
+            lats += list(lat)
+            lons.append(None)
+            lats.append(None)
 
     return lons, lats
 
 
 def plot_area_with_sliders(
-    original_border,
-    new_border,
-    difference_area,
-    diff_rgb,
-    base_features,
-    base_rgb,
-    alpha,
-    area_name,
-):
+    original_border: MultiPolygon,
+    base_features: MultiPolygon,
+    new_border: MultiPolygon,
+    difference_area: MultiPolygon,
+    diff_rgb: tuple[int, int, int],
+    base_rgb: tuple[int, int, int],
+    alpha: float,
+    area_name: str,
+) -> None:
+    """Creates interactive plot for all areas.
+
+    :param original_border: Original area border.
+    :param base_features: Base feature Polygons
+    :param new_border: New area border.
+    :param difference_area: Polygons where areas differ.
+    :param diff_rgb: RGB colour for areas that differ and intersect base features.
+    :param base_rgb: RGB colour for base features.
+    :param alpha: Initial opacity of base_features and area differences.
+    :param area_name: Name of area
+    :return: None
+    """
+
     diff_lons, diff_lats = polygon_prep(difference_area)
     feature_lons, feature_lats = polygon_prep(base_features)
-
     original_lons, original_lats = polygon_prep(original_border)
     new_lons, new_lats = polygon_prep(new_border)
 
@@ -214,3 +269,5 @@ def plot_area_with_sliders(
     )
 
     fig.show()
+
+    return None
