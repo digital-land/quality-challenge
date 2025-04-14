@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Optional
 
 from crawl4ai import AsyncWebCrawler, CacheMode, CrawlerRunConfig
@@ -14,6 +15,11 @@ from crawl4ai.deep_crawling.filters import (
 from crawl4ai.deep_crawling.scorers import KeywordRelevanceScorer
 
 
+class CrawlType(str, Enum):
+    HTML = "html"
+    PDF = "pdf"
+
+
 class Crawler:
     """
     A class-based implementation of an asynchronous web crawler
@@ -25,6 +31,7 @@ class Crawler:
         'weight' (float).
     :param filters: List of filter configurations or filter instances.
     :param cache_enabled: Whether caching is enabled.
+    :param crawl_type: What type of content to crawl for - html or pdf.
     """
 
     def __init__(
@@ -34,12 +41,19 @@ class Crawler:
         keyword_scorer: Optional[dict] = None,
         filters: Optional[list[dict | URLFilter]] = None,
         cache_enabled: bool = False,
+        crawl_type: str = "html",
     ):
         self.max_depth = max_depth
         self.include_external = include_external
         self.keyword_scorer = self._initialize_scorer(keyword_scorer)
         self.filter_chain = self._initialize_filters(filters)
         self.cache_enabled = cache_enabled
+        try:
+            self.crawl_type = CrawlType(crawl_type)
+        except ValueError:
+            raise ValueError(
+                f"Unknown crawl_type option: {crawl_type}. Please choose from {CrawlType._member_names_}"
+            )
 
     def _initialize_filters(self, filters) -> FilterChain:
         """Converts filter dictionaries into filter objects."""
@@ -116,6 +130,13 @@ class Crawler:
 
             for result in results:
                 if result.success:
-                    crawl_data.append((result.url, result.markdown.raw_markdown))
+                    content_type = result.response_headers["content-type"]
+                    if (
+                        self.crawl_type == CrawlType.PDF
+                        and "application/pdf" in content_type
+                    ):
+                        crawl_data.append(result.url)
+                    elif self.crawl_type == CrawlType.HTML:
+                        crawl_data.append((result.url, result.markdown.raw_markdown))
 
         return crawl_data
