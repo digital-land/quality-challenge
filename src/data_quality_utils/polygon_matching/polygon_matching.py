@@ -6,6 +6,7 @@ from brdr.loader import DictLoader
 from geopandas import GeoDataFrame, GeoSeries
 from shapely import MultiPolygon, Polygon
 from shapely.ops import unary_union
+from shapely.validation import make_valid
 
 
 class PolygonMatcher:
@@ -191,11 +192,16 @@ class PolygonMatcher:
         :param area_threshold: Threshold above which we return areas, defaults to 100
         :return: List of large areas.
         """
+        # valid_areas = [make_valid(geom) for geom in base_features_df.explode()]
+        base_features_multipolygon = make_valid(
+            MultiPolygon(list(base_features_df.explode()))
+        )
+
         red_area_calcs = [
-            geom.area
-            for geom in MultiPolygon(list(base_features_df.explode()))
-            .intersection(diff_df["geometry"])
-            .explode()
+            make_valid(geom).area
+            for geom in base_features_multipolygon.intersection(
+                diff_df["geometry"]
+            ).explode()
             if geom.area >= area_threshold
         ]
 

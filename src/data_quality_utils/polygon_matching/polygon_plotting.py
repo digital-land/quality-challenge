@@ -2,6 +2,7 @@ import numpy as np
 import plotly.graph_objects as go
 from geopandas import GeoDataFrame, GeoSeries
 from shapely import LineString, MultiLineString, MultiPolygon
+from shapely.validation import make_valid
 
 
 def get_plotting_polygons(
@@ -28,7 +29,9 @@ def get_plotting_polygons(
     original_border = original_df["geometry"].to_crs(base_crs)[0]
     new_border = MultiPolygon(list(aligned_df["geometry"].to_crs(base_crs)))
     base_features = MultiPolygon(list(base_features_df.explode().to_crs(base_crs)))
-    difference_area = base_features.intersection(diff_df["geometry"].to_crs(base_crs))
+    difference_area = make_valid(base_features).intersection(
+        diff_df["geometry"].to_crs(base_crs)
+    )
     difference_area = difference_area.explode()
     difference_area = difference_area[
         difference_area.geometry.geom_type.isin(["Polygon", "MultiPolygon"])
