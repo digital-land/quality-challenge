@@ -27,7 +27,8 @@ def get_plotting_polygons(
     :return: Tuple of standardised Polygons/Multipolygons in same order.
     """
     original_border = original_df["geometry"].to_crs(base_crs)[0]
-    new_border = MultiPolygon(list(aligned_df["geometry"].to_crs(base_crs)))
+
+    new_border = MultiPolygon(list(aligned_df["geometry"].explode().to_crs(base_crs)))
     base_features = MultiPolygon(list(base_features_df.explode().to_crs(base_crs)))
     difference_area = make_valid(base_features).intersection(
         diff_df["geometry"].to_crs(base_crs)
