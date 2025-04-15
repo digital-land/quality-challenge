@@ -42,11 +42,36 @@ class PolygonMatcher:
         self.polygon_detection_buffer = polygon_detection_buffer
         self.line_buffer = line_buffer
 
+    def find_near_tags(
+        self, original_df: GeoDataFrame, tag_keys: list[str] = ["landuse", "natural"]
+    ) -> dict | None:
+        nearby_tags = dict()
+        added_buffer_df = original_df.to_crs(self.mercator_crs).boundary.buffer(
+            self.polygon_detection_buffer
+        )
+        df_for_query = added_buffer_df.to_crs(self.base_crs)
+        polygon_for_osm = df_for_query.geometry.iloc[0]
+        query_all_tags: dict[str, bool | str | list[str]] = {
+            feature: True for feature in tag_keys
+        }
+        try:
+            downloaded_features_df = ox.features_from_polygon(
+                polygon_for_osm, query_all_tags
+            )
+        except Exception as e:
+            print(f"Error - {e}")
+            print("Returning None")
+            return None
+        for tag in tag_keys:
+            specific_tags = list(downloaded_features_df[tag].dropna().unique())
+            nearby_tags[tag] = specific_tags
+        return nearby_tags
+
     def download_osm_polygons(
         self,
         original_df: GeoDataFrame,
         feature_tags: dict,
-    ) -> GeoSeries:
+    ) -> GeoSeries | None:
         """Downloads polygons within boundary from Open Street Map.
 
         :param original_df: Dataframe with original area polygon.
@@ -61,7 +86,14 @@ class PolygonMatcher:
         polygon_for_osm = df_for_query.geometry.iloc[0]
 
         base_features_df = gpd.GeoDataFrame(geometry=[], crs=self.base_crs)
-        downloaded_features_df = ox.features_from_polygon(polygon_for_osm, feature_tags)
+        try:
+            downloaded_features_df = ox.features_from_polygon(
+                polygon_for_osm, feature_tags
+            )
+        except Exception as e:
+            print(f"Error - {e}")
+            print("Returning None")
+            return None
 
         base_features_df = downloaded_features_df[
             downloaded_features_df.geometry.geom_type.isin(
