@@ -180,3 +180,4 @@ notebooks/documentation_url/data/crawled_sites/
 *.pdf
 datasette_data.csv
 *.pickle
+notebooks/polygon_comparison/cache

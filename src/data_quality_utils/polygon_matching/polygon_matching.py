@@ -45,6 +45,15 @@ class PolygonMatcher:
     def find_near_tags(
         self, original_df: GeoDataFrame, tag_keys: list[str] = ["landuse", "natural"]
     ) -> dict | None:
+        """Finds OSM tags near the original border. These tags can be directly
+        fed in to downstream tasks.
+
+        :param original_df: Dataframe with original area polygon.
+        :param tag_keys: List of tag keys for the search.
+            This function returns all features under this more general
+            tag key, defaults to ["landuse", "natural"].
+        :return: Dictionary of tags formatted for use in download_osm_polygons.
+        """
         nearby_tags = dict()
         added_buffer_df = original_df.to_crs(self.mercator_crs).boundary.buffer(
             self.polygon_detection_buffer
