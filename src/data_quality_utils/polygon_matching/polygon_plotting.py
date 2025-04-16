@@ -42,7 +42,7 @@ def get_plotting_polygons(
     return original_border, base_features, new_border, difference_area
 
 
-def polygon_prep(
+def extract_coordinates(
     multi_polygon: MultiPolygon,
 ) -> tuple[list[float | None], list[float | None]]:
     """Prepares polygons for plotting.
@@ -80,10 +80,10 @@ def plot_area_with_sliders(
     base_features: MultiPolygon,
     new_border: MultiPolygon,
     difference_area: MultiPolygon,
-    diff_rgb: tuple[int, int, int],
-    base_rgb: tuple[int, int, int],
-    alpha: float,
     area_name: str,
+    diff_rgb: tuple[int, int, int] = (255, 0, 0),
+    base_rgb: tuple[int, int, int] = (0, 0, 255),
+    alpha: float = 0.3,
 ) -> None:
     """Creates interactive plot for all areas.
 
@@ -98,10 +98,10 @@ def plot_area_with_sliders(
     :return: None
     """
 
-    diff_lons, diff_lats = polygon_prep(difference_area)
-    feature_lons, feature_lats = polygon_prep(base_features)
-    original_lons, original_lats = polygon_prep(original_border)
-    new_lons, new_lats = polygon_prep(new_border)
+    diff_lons, diff_lats = extract_coordinates(difference_area)
+    feature_lons, feature_lats = extract_coordinates(base_features)
+    original_lons, original_lats = extract_coordinates(original_border)
+    new_lons, new_lats = extract_coordinates(new_border)
 
     # Find centre for plotting
     boundary_centre = original_border.centroid
@@ -260,13 +260,13 @@ def plot_area_with_sliders(
         updatemenus=[
             dict(
                 type="buttons",
-                direction="left",
+                direction="down",
                 buttons=map_switch,
                 pad={"r": 10, "t": 10},
                 showactive=True,
-                x=0.7,
+                x=1.2,
                 xanchor="right",
-                y=1.15,
+                y=-0.15,
                 yanchor="top",
             ),
         ],

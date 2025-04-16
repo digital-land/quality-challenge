@@ -16,7 +16,8 @@ class PolygonMatcher:
     :param base_crs: Co-ordinate reference system we use as a base.
     :param polygon_snap_distance: Distance (m) our new boundary can snap to features within.
         Lower means less features are likely to be snapped to, but higher can snap to irrelevant polygons.
-    :param brdr_threshold: Threshold of overlap for brdr to consider base polygons. Lower means more sensitive.
+    :param overlap_sensitivity: Threshold (%) of overlap between base features and original border for brdr to
+        consider snapping to base features. Lower means more sensitive.
     :param snapping_strategy: Strategy for brdr's snapping algorithm. Please consult their documentation for the full list.
     :param mercator_crs: Co-ordinate reference system for mercator projection. Used for Brdr and distances.
     :param polygon_detection_buffer: Radius of buffer around our boundary (m) for polygons to consider snapping to.
@@ -27,7 +28,7 @@ class PolygonMatcher:
         self,
         base_crs: str = "EPSG:4326",
         polygon_snap_distance: float = 20,
-        brdr_threshold: float = 10,
+        overlap_sensitivity: float = 10,
         snapping_strategy: int = OpenbaarDomeinStrategy.SNAP_ONLY_VERTICES,
         mercator_crs: str = "EPSG:3857",
         polygon_detection_buffer: float = 1.0,
@@ -35,7 +36,7 @@ class PolygonMatcher:
     ):
         self.base_crs = base_crs
         self.polygon_snap_distance = polygon_snap_distance
-        self.brdr_threshold = brdr_threshold
+        self.overlap_sensitivity = overlap_sensitivity
         self.snapping_strategy = snapping_strategy
         self.mercator_crs = mercator_crs
         self.base_crs = base_crs
@@ -44,7 +45,7 @@ class PolygonMatcher:
 
     def find_near_tags(
         self, original_df: GeoDataFrame, tag_keys: list[str] = ["landuse", "natural"]
-    ) -> dict | None:
+    ) -> dict:
         """Finds OSM tags near the original border. These tags can be directly
         fed in to downstream tasks.
 
@@ -63,14 +64,10 @@ class PolygonMatcher:
         query_all_tags: dict[str, bool | str | list[str]] = {
             feature: True for feature in tag_keys
         }
-        try:
-            downloaded_features_df = ox.features_from_polygon(
-                polygon_for_osm, query_all_tags
-            )
-        except Exception as e:
-            print(f"Error - {e}")
-            print("Returning None")
-            return None
+        downloaded_features_df = ox.features_from_polygon(
+            polygon_for_osm, query_all_tags
+        )
+
         for tag in tag_keys:
             specific_tags = list(downloaded_features_df[tag].dropna().unique())
             nearby_tags[tag] = specific_tags
@@ -80,7 +77,7 @@ class PolygonMatcher:
         self,
         original_df: GeoDataFrame,
         feature_tags: dict,
-    ) -> GeoSeries | None:
+    ) -> GeoSeries:
         """Downloads polygons within boundary from Open Street Map.
 
         :param original_df: Dataframe with original area polygon.
@@ -95,14 +92,7 @@ class PolygonMatcher:
         polygon_for_osm = df_for_query.geometry.iloc[0]
 
         base_features_df = gpd.GeoDataFrame(geometry=[], crs=self.base_crs)
-        try:
-            downloaded_features_df = ox.features_from_polygon(
-                polygon_for_osm, feature_tags
-            )
-        except Exception as e:
-            print(f"Error - {e}")
-            print("Returning None")
-            return None
+        downloaded_features_df = ox.features_from_polygon(polygon_for_osm, feature_tags)
 
         base_features_df = downloaded_features_df[
             downloaded_features_df.geometry.geom_type.isin(
@@ -123,22 +113,16 @@ class PolygonMatcher:
             return base_features_df.to_crs(self.mercator_crs)
         return base_features_df
 
-    def _process_osm_polygons(
-        self, base_features_df: GeoSeries, used_osm_indices: None | list[int] = None
+    def _combine_osm_polygons(
+        self,
+        base_features_df: GeoSeries,
     ) -> Polygon | MultiPolygon:
         """Utility for combining and standardising base features.
 
         :param base_features_df: GeoSeries with all the relevant base polygons.
-        :param used_osm_indices: For testing, limit used polygons to specific indices, defaults to None.
         :return: Combined Polygon or MultiPolygon for base features.
         """
-        if used_osm_indices is None:
-            # Here we use ALL downloaded features
-            geometries_to_combine = base_features_df.geometry
-        elif isinstance(used_osm_indices, list) and used_osm_indices:
-            # Here we only use features at specific indices
-            geometries_to_combine = base_features_df.iloc[used_osm_indices].geometry
-
+        geometries_to_combine = base_features_df.geometry
         # Combine all the geometries we need
         combined_geometries = unary_union(geometries_to_combine)
         if isinstance(combined_geometries, (Polygon | MultiPolygon)):
@@ -175,7 +159,7 @@ class PolygonMatcher:
         process_result = aligner.process(
             relevant_distance=self.polygon_snap_distance,
             od_strategy=self.snapping_strategy,
-            threshold_overlap_percentage=self.brdr_threshold,
+            threshold_overlap_percentage=self.overlap_sensitivity,
         )
         aligned_geom = process_result["theme_id_1"][self.polygon_snap_distance][
             "result"
@@ -198,21 +182,21 @@ class PolygonMatcher:
 
         return aligned_df, diff_df
 
-    def get_new_aligned_areas(
+    def match_polygon_to_features(
         self,
         original_df: GeoDataFrame,
         base_features_df: GeoSeries,
-        used_osm_indices: list | None = None,
     ) -> tuple[GeoDataFrame, GeoDataFrame]:
-        """From previous steps, provides new boundary and differences
+        """From original boundary and base features from our map, this function provides the new
+            aligned boundary with the line snapped to relevant features, and where this new
+            boundary differs from the original.
 
         :param original_df: GeoDataFrame with original boundary.
         :param base_features_df: GeoSeries with base polygon features from Open Street Map.
-        :param used_osm_indices: For testing, limit used polygons to specific indices, defaults to None.
         :return: tuple with aligned_df containing new boundary and diff_geom for polygons where areas changed.
         """
         original_projection = original_df.to_crs(self.mercator_crs)
-        new_geom = self._process_osm_polygons(base_features_df, used_osm_indices)
+        new_geom = self._combine_osm_polygons(base_features_df)
         aligned_df, diff_df = self._get_snapped_polygon(
             new_geom=new_geom,
             original_projection=original_projection,
@@ -220,7 +204,7 @@ class PolygonMatcher:
 
         return aligned_df, diff_df
 
-    def calculate_large_red_areas(
+    def calculate_area_of_large_discrepancies(
         self,
         base_features_df: GeoSeries,
         diff_df: GeoDataFrame,
@@ -233,7 +217,6 @@ class PolygonMatcher:
         :param area_threshold: Threshold above which we return areas, defaults to 100
         :return: List of large areas.
         """
-        # valid_areas = [make_valid(geom) for geom in base_features_df.explode()]
         base_features_multipolygon = make_valid(
             MultiPolygon(list(base_features_df.explode()))
         )
@@ -246,11 +229,35 @@ class PolygonMatcher:
             if geom.area >= area_threshold
         ]
 
-        print(f"Areas of red areas over {area_threshold}m^2: {red_area_calcs}")
-
         return red_area_calcs
 
-    def calculate_red_area_proportion(
+    def calculate_total_area_of_discrepancies(
+        self,
+        base_features_df: GeoSeries,
+        diff_df: GeoDataFrame,
+        area_threshold: float = 100,
+    ) -> float:
+        """Calculates the total area of areas of concern, red on the map.
+
+        :param base_features_df: GeoSeries with base polygon features from Open Street Map.
+        :param diff_df: GeoDataFrame with areas that differ to original boundary.
+        :param area_threshold: Threshold above which we return areas, defaults to 100
+        :return: List of large areas.
+        """
+        base_features_multipolygon = make_valid(
+            MultiPolygon(list(base_features_df.explode()))
+        )
+
+        red_area_calcs = [
+            make_valid(geom).area
+            for geom in base_features_multipolygon.intersection(
+                diff_df["geometry"]
+            ).explode()
+        ]
+
+        return sum(red_area_calcs)
+
+    def large_discrepancy_proportion(
         self,
         base_features_df: GeoSeries,
         aligned_df: GeoDataFrame,
@@ -263,13 +270,10 @@ class PolygonMatcher:
         :param diff_df: GeoDataFrame with areas that differ to original boundary.
         :return: Percentage of new boundary that is of concern.
         """
-        # aligned_df['geometry'][0].area
-        # diff_df['geometry'][0].area
         difference_area = unary_union(base_features_df).intersection(
             diff_df["geometry"][0]
         )
         new_border = aligned_df["geometry"][0]
         ratio = 100 * difference_area.area / new_border.area
-        print(f"Ratio of red areas in total area as percentage: {ratio}%")
 
         return ratio
