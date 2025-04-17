@@ -25,7 +25,8 @@ dependencies = [
     "geopy (>=2.4.1,<3.0.0)",
     "python-dotenv (>=1.1.0,<2.0.0)",
     "langchain (>=0.3.22,<0.4.0)",
-    "markitdown[pdf] (>=0.1.1,<0.2.0)"
+    "markitdown[pdf] (>=0.1.1,<0.2.0)",
+    "kagglehub (>=0.3.11,<0.4.0)"
 ]
 
 [tool.poetry]
