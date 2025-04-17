@@ -11,11 +11,16 @@ logger = logging.getLogger(__name__)
 
 
 class GoogleMapTilesExtractor:
+    """
+    Extracts satellite tiles from Google Maps Tile API using x, y coordinates.
+
+    :param google_api_key: Google Maps API key for authentication
+    """
     def __init__(self, google_api_key):
         self._google_api_key = google_api_key
 
     def get_xy_coordinates(self, lon, lat, zoom):
-        # get x, y coordinates from lat, lon coordinates
+        """Convert latitude and longitude to x, y tile coordinates."""
         lat_rad = math.radians(lat)
         n = 2.0**zoom
         xtile = int((lon + 180.0) / 360.0 * n)
@@ -27,6 +32,7 @@ class GoogleMapTilesExtractor:
         return xtile, ytile
 
     def get_session_token(self):
+        """Request and return a new session token from the Google Maps Tile API."""
         url = f"https://tile.googleapis.com/v1/createSession?key={self._google_api_key}"
 
         payload = {"mapType": "satellite"}
@@ -37,6 +43,14 @@ class GoogleMapTilesExtractor:
         return session_token
 
     def download_image(self, lat, lon, zoom, filename):
+        """
+        Download a satellite tile image from Google Maps Tile API and save it with metadata.
+        :param lat: Latitude of the desired location
+        :param lon: Longitude of the desired location
+        :param zoom: Zoom level for the tile image
+        :param filename: File path to save the downloaded image
+        :return: None
+        """
         # get image
         x, y = self.get_xy_coordinates(lon, lat, zoom)
         session_token = self.get_session_token()
@@ -69,10 +83,25 @@ class GoogleMapTilesExtractor:
 
 
 class GoogleStaticMapsExtractor:
+    """
+    Downloads satellite images from the Google Static Maps API.
+
+    :param google_api_key: Google Maps API key for authentication
+    """
     def __init__(self, google_api_key):
         self._google_api_key = google_api_key
 
     def download_image(self, lat, lon, zoom, scale, img_size, filename):
+        """
+        Download a satellite image from Google Static Maps API and save it with metadata.
+        :param lat: Latitude of the desired location
+        :param lon: Longitude of the desired location
+        :param zoom: Zoom level for the map image
+        :param scale: Image scale (1 or 2 for normal/high res)
+        :param img_size: Tuple representing width and height in pixels
+        :param filename: File path to save the downloaded image
+        :return: None
+        """
         # get image
         static_maps_base_url = "https://maps.googleapis.com/maps/api/staticmap?"
         img_size = [img_size[0], img_size[1]]
@@ -109,10 +138,16 @@ class GoogleStaticMapsExtractor:
 
 
 class WMSExtractor:
+    """
+    Extracts satellite imagery using Web Map Service (WMS) protocols.
+
+    :param wms_url: URL endpoint of the WMS server
+    """
     def __init__(self, wms_url):
         self.wms = WebMapService(wms_url)
 
     def get_bbox(self, lat, lon, offset):
+        """Calculate a bounding box around a coordinate with a given offset."""
         xmin = lon - offset
         ymin = lat - offset
         xmax = lon + offset
@@ -120,6 +155,15 @@ class WMSExtractor:
         return (xmin, ymin, xmax, ymax)
 
     def download_image(self, lat, lon, offset, filename, img_size=[500, 500]):
+        """
+        Download a WMS image around the given coordinates and save it with metadata.
+        :param lat: Latitude of the center point
+        :param lon: Longitude of the center point
+        :param offset: Offset in degrees to calculate bounding box
+        :param filename: File path to save the image
+        :param img_size: Tuple representing width and height in pixels
+        :return: None
+        """
         # get image
         bbox = self.get_bbox(lat, lon, offset)
         img = self.wms.getmap(
