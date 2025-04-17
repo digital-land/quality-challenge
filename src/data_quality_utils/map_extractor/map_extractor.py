@@ -16,10 +16,11 @@ class GoogleMapTilesExtractor:
 
     :param google_api_key: Google Maps API key for authentication
     """
-    def __init__(self, google_api_key):
+
+    def __init__(self, google_api_key: str):
         self._google_api_key = google_api_key
 
-    def get_xy_coordinates(self, lon, lat, zoom):
+    def get_xy_coordinates(self, lon: float, lat: float, zoom: int) -> tuple[int, int]:
         """Convert latitude and longitude to x, y tile coordinates."""
         lat_rad = math.radians(lat)
         n = 2.0**zoom
@@ -31,7 +32,7 @@ class GoogleMapTilesExtractor:
         )
         return xtile, ytile
 
-    def get_session_token(self):
+    def get_session_token(self) -> str:
         """Request and return a new session token from the Google Maps Tile API."""
         url = f"https://tile.googleapis.com/v1/createSession?key={self._google_api_key}"
 
@@ -42,7 +43,7 @@ class GoogleMapTilesExtractor:
         session_token = response.json().get("session", "")
         return session_token
 
-    def download_image(self, lat, lon, zoom, filename):
+    def download_image(self, lat: float, lon: float, zoom: int, filename: str) -> None:
         """
         Download a satellite tile image from Google Maps Tile API and save it with metadata.
         :param lat: Latitude of the desired location
@@ -88,10 +89,19 @@ class GoogleStaticMapsExtractor:
 
     :param google_api_key: Google Maps API key for authentication
     """
-    def __init__(self, google_api_key):
+
+    def __init__(self, google_api_key: str):
         self._google_api_key = google_api_key
 
-    def download_image(self, lat, lon, zoom, scale, img_size, filename):
+    def download_image(
+        self,
+        lat: float,
+        lon: float,
+        zoom: int,
+        scale: int,
+        img_size: tuple[int, int],
+        filename: str,
+    ) -> None:
         """
         Download a satellite image from Google Static Maps API and save it with metadata.
         :param lat: Latitude of the desired location
@@ -143,10 +153,13 @@ class WMSExtractor:
 
     :param wms_url: URL endpoint of the WMS server
     """
-    def __init__(self, wms_url):
+
+    def __init__(self, wms_url: str):
         self.wms = WebMapService(wms_url)
 
-    def get_bbox(self, lat, lon, offset):
+    def get_bbox(
+        self, lat: float, lon: float, offset: float
+    ) -> tuple[float, float, float, float]:
         """Calculate a bounding box around a coordinate with a given offset."""
         xmin = lon - offset
         ymin = lat - offset
@@ -154,7 +167,14 @@ class WMSExtractor:
         ymax = lat + offset
         return (xmin, ymin, xmax, ymax)
 
-    def download_image(self, lat, lon, offset, filename, img_size=[500, 500]):
+    def download_image(
+        self,
+        lat: float,
+        lon: float,
+        offset: float,
+        filename: str,
+        img_size: tuple[int] = (500, 500),
+    ) -> None:
         """
         Download a WMS image around the given coordinates and save it with metadata.
         :param lat: Latitude of the center point

@@ -14,6 +14,7 @@ import numpy as np
 from deepforest import main
 from geopy.distance import geodesic
 from matplotlib import pyplot as plt
+from matplotlib.figure import Figure
 
 # silence some deepforest warnings
 warnings.filterwarnings(
@@ -47,16 +48,17 @@ def suppress_output():
 class TreeFinder:
     """
     A TreeFinder class which can process an image to detect
-    all visible trees, find the closest tree to a point 
+    all visible trees, find the closest tree to a point
     and plot some statistics.
     """
+
     def __init__(self):
         checkpoint_path = self._download_model_checkpoint()
         self.model = main.deepforest.load_from_checkpoint(
             checkpoint_path=checkpoint_path
         )
 
-    def _download_model_checkpoint(self):
+    def _download_model_checkpoint(self) -> str:
         """Download and return the model checkpoint path."""
         download_path = kagglehub.dataset_download(
             "easzil/dataset", path="model.opendata_luftbild_dop60.patch400.ckpt"
@@ -66,7 +68,7 @@ class TreeFinder:
         logging.info(f"Downloaded model checkpoint to {destination_path}")
         return destination_path
 
-    def _predict_boxes(self, image):
+    def _predict_boxes(self, image: np.ndarray) -> list[dict[str, float]]:
         """Run the model on the image and return predicted bounding boxes."""
         with suppress_output():
             pred_boxes = self.model.predict_tile(
@@ -80,16 +82,16 @@ class TreeFinder:
 
     def _calculate_distances(
         self,
-        lat,
-        lon,
-        img_width,
-        img_height,
-        pred_boxes,
-        convert_coords,
-        bbox=None,
-        zoom=None,
-        scale=None,
-    ):
+        lat: float,
+        lon: float,
+        img_width: int,
+        img_height: int,
+        pred_boxes: list[dict[str, float]],
+        convert_coords: bool,
+        bbox: tuple[float, float, float, float] | None = None,
+        zoom: int | None = None,
+        scale: float | None = None,
+    ) -> list[tuple[tuple[float, float], float, dict[str, float]]]:
         """Calculate distances from predicted tree boxes to a given geographic location."""
         distances = []
         for box in pred_boxes:
@@ -114,7 +116,9 @@ class TreeFinder:
             distances.append(((pred_lat, pred_lon), box_dist, box))
         return distances
 
-    def _generate_boxes(self, image, pred_boxes):
+    def _generate_boxes(
+        self, image: np.ndarray, pred_boxes: list[dict[str, float]] | dict[str, float]
+    ) -> None:
         """Draw bounding boxes on the image."""
         thickness = max(1, image.shape[0] // 500)
         if isinstance(pred_boxes, dict):
@@ -129,12 +133,17 @@ class TreeFinder:
                 lineType=cv2.LINE_AA,
             )
 
-    def _generate_point(self, image, point):
+    def _generate_point(self, image: np.ndarray, point: tuple[int, int]) -> None:
         """Draw a point on the image."""
         radius = max(5, (image.shape[0] // 500) * 5)
         cv2.circle(image, point, radius=radius, color=(0, 0, 255), thickness=-1)
 
-    def _generate_image(self, image, pred_boxes, point=None):
+    def _generate_image(
+        self,
+        image: np.ndarray,
+        pred_boxes: list[dict[str, float]] | dict[str, float],
+        point: tuple[int, int] | None = None,
+    ) -> np.ndarray:
         """Overlay bounding boxes and optional point on the image."""
         image_copy = image.copy()
         self._generate_boxes(image_copy, pred_boxes)
@@ -142,7 +151,7 @@ class TreeFinder:
             self._generate_point(image_copy, point)
         return image_copy
 
-    def _get_image_metadata(self, filename):
+    def _get_image_metadata(self, filename: str) -> dict | None:
         """Load and return metadata for an image."""
         metadada_filename = filename.replace(".png", ".json")
         if not os.path.exists(metadada_filename):
@@ -151,7 +160,7 @@ class TreeFinder:
             metadata = json.load(f)
         return metadata
 
-    def find_all_trees(self, filename):
+    def find_all_trees(self, filename: str) -> np.ndarray:
         """
         Detects all trees in an image and overlays bounding boxes.
         :param filename: Path to the image file.
@@ -164,10 +173,10 @@ class TreeFinder:
 
     def find_closest_tree(
         self,
-        filename,
-        convert_coords=False,
-        flag_threshold=10,
-    ):
+        filename: str,
+        convert_coords: bool = False,
+        flag_threshold: float = 10,
+    ) -> tuple[float, bool, np.ndarray] | None:
         """
         Finds the tree closest to the GPS coordinate in the image metadata.
         :param filename: Path to the image file.
@@ -215,7 +224,7 @@ class TreeFinder:
         result_image = self._generate_image(image_copy, best_box, (x_pixel, y_pixel))
         return best_dist, flagged, result_image
 
-    def _show_single(self, image, image_title=None):
+    def _show_single(self, image: np.ndarray, image_title: str) -> Figure:
         """Display a single image"""
         fig, ax = plt.subplots(1, 1, figsize=(5, 5))
         ax.imshow(image)
@@ -223,7 +232,9 @@ class TreeFinder:
         ax.axis("off")
         return fig
 
-    def _show_multiple(self, image_list, image_title_list:None):
+    def _show_multiple(
+        self, image_list: list[np.ndarray], image_title_list: list[str]
+    ) -> Figure:
         """Display multiple images side by side."""
         num_images = len(image_list)
         fig, axes = plt.subplots(1, num_images, figsize=(5 * num_images, 5))
@@ -233,7 +244,13 @@ class TreeFinder:
             ax.axis("off")
         return fig
 
-    def show_image(self, images, image_titles=None, save=False, save_path=None):
+    def show_image(
+        self,
+        images: np.ndarray | list[np.ndarray],
+        image_titles: str | list[str] | None = None,
+        save: bool = False,
+        save_path: str | None = None,
+    ) -> None:
         """Show one or more images."""
         if isinstance(images, list):
             fig = self._show_multiple(images, image_titles)
@@ -244,7 +261,7 @@ class TreeFinder:
             fig.savefig(save_path, dpi=300, bbox_inches="tight")
         plt.show()
 
-    def get_stats(self, paths, types):
+    def get_stats(self, paths: list[str], types: list[str]) -> dict[str, list[float]]:
         """Compute distance statistics for tree predictions across multiple image sets."""
         stats = {}
         for path, type in zip(paths, types):
@@ -287,7 +304,7 @@ class TreeFinder:
         return stats
 
     @staticmethod
-    def show_stats(stats_dict):
+    def show_stats(stats_dict: dict[str, list[float]]) -> None:
         """Plot histograms of tree detection distances for each image type."""
         max_distance = math.ceil(
             max(max(type_stats) for type_stats in stats_dict.values())
@@ -315,7 +332,13 @@ class TreeFinder:
         plt.show()
 
     @staticmethod
-    def pixel_to_epsg4326(x, y, img_width, img_height, bbox):
+    def pixel_to_epsg4326(
+        x: float,
+        y: float,
+        img_width: int,
+        img_height: int,
+        bbox: tuple[float, float, float, float],
+    ) -> tuple[float, float]:
         """Convert image pixel coordinates to EPSG:4326 (lat/lon)."""
         xmin, ymin, xmax, ymax = bbox
         lon = xmin + (x / img_width) * (xmax - xmin)
@@ -323,7 +346,12 @@ class TreeFinder:
         return lon, lat
 
     @staticmethod
-    def epsg4326_to_pixel(lat, lon, bbox, img_size):
+    def epsg4326_to_pixel(
+        lat: float,
+        lon: float,
+        bbox: tuple[float, float, float, float],
+        img_size: tuple[int, int],
+    ) -> tuple[int, int]:
         """Convert EPSG:4326 (lat/lon) to pixel coordinates in an image."""
         xmin, ymin, xmax, ymax = bbox
         width, height = img_size
@@ -334,7 +362,9 @@ class TreeFinder:
         return x_pixel, y_pixel
 
     @staticmethod
-    def epsg3857_to_pixel(lat, lon, zoom, scale):
+    def epsg3857_to_pixel(
+        lat: float, lon: float, zoom: int, scale: float
+    ) -> tuple[float, float]:
         """Convert EPSG:3857 coordinates to pixel coordinates."""
         siny = math.sin(math.radians(lat))
         siny = min(max(siny, -0.9999), 0.9999)
@@ -345,7 +375,9 @@ class TreeFinder:
         return x, y
 
     @staticmethod
-    def pixel_to_epsg3857(x, y, zoom, scale):
+    def pixel_to_epsg3857(
+        x: float, y: float, zoom: int, scale: float
+    ) -> tuple[float, float]:
         """Convert pixel coordinates to EPSG:3857 (lat/lon)."""
         map_size = TILE_SIZE * (2**zoom) * scale
         lon = x / map_size * 360.0 - 180.0
