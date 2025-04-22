@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 from dataclasses import asdict
@@ -6,18 +5,13 @@ from urllib.parse import urlencode
 
 import requests
 
+from .map_extractor import MapExtractor
 from .map_utils import GoogleStaticMetadata
 
 logger = logging.getLogger(__name__)
 
 
-class GoogleStaticMapsExtractor:
-    """
-    Downloads satellite images from the Google Static Maps API.
-
-    :param google_api_key: Google Maps API key for authentication
-    """
-
+class GoogleStaticMapsExtractor(MapExtractor):
     def __init__(self, google_api_key: str):
         self._google_api_key = google_api_key
 
@@ -68,6 +62,4 @@ class GoogleStaticMapsExtractor:
             scale=scale,
             img_size=img_size,
         )
-        meta_filename = filename.replace(".png", ".json")
-        with open(meta_filename, "w") as f_meta:
-            json.dump(asdict(metadata), f_meta)
+        self.save_metadata(filename, asdict(metadata))

@@ -1,22 +1,16 @@
-import json
 import logging
 import os
 from dataclasses import asdict
 
 from owslib.wms import WebMapService
 
+from .map_extractor import MapExtractor
 from .map_utils import WMSMetadata
 
 logger = logging.getLogger(__name__)
 
 
-class WMSExtractor:
-    """
-    Extracts satellite imagery using Web Map Service (WMS) protocols.
-
-    :param wms_url: URL endpoint of the WMS server
-    """
-
+class WMSExtractor(MapExtractor):
     def __init__(self, wms_url: str):
         self.wms = WebMapService(wms_url)
 
@@ -70,6 +64,4 @@ class WMSExtractor:
             bbox=bbox,
             img_size=img_size,
         )
-        meta_filename = filename.replace(".png", ".json")
-        with open(meta_filename, "w") as f_meta:
-            json.dump(asdict(metadata), f_meta)
+        self.save_metadata(filename, asdict(metadata))

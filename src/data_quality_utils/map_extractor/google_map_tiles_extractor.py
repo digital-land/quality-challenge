@@ -1,4 +1,3 @@
-import json
 import logging
 import math
 import os
@@ -6,12 +5,13 @@ from dataclasses import asdict
 
 import requests
 
+from .map_extractor import MapExtractor
 from .map_utils import GoogleTilesMetadata
 
 logger = logging.getLogger(__name__)
 
 
-class GoogleMapTilesExtractor:
+class GoogleMapTilesExtractor(MapExtractor):
     """
     Extracts satellite tiles from Google Maps Tile API using x, y coordinates.
 
@@ -78,6 +78,4 @@ class GoogleMapTilesExtractor:
             zoom=zoom,
             img_size=(256, 256),
         )
-        meta_filename = filename.replace(".png", ".json")
-        with open(meta_filename, "w") as f_meta:
-            json.dump(asdict(metadata), f_meta)
+        self.save_metadata(filename, asdict(metadata))
