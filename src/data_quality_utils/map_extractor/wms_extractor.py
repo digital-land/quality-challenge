@@ -1,10 +1,14 @@
 import json
 import logging
 import os
+from dataclasses import asdict
+
 from owslib.wms import WebMapService
 
+from .map_utils import WMSMetadata
 
 logger = logging.getLogger(__name__)
+
 
 class WMSExtractor:
     """
@@ -60,13 +64,12 @@ class WMSExtractor:
             logger.info(f"Saved image at {filename}")
 
         # save metadata
-        metadata = {
-            "lat": lat,
-            "lon": lon,
-            "bbox": bbox,
-            "img_size": img_size,
-            "type": "wms",
-        }
+        metadata = WMSMetadata(
+            lat=lat,
+            lon=lon,
+            bbox=bbox,
+            img_size=list(img_size),
+        )
         meta_filename = filename.replace(".png", ".json")
         with open(meta_filename, "w") as f_meta:
-            json.dump(metadata, f_meta)
+            json.dump(asdict(metadata), f_meta)

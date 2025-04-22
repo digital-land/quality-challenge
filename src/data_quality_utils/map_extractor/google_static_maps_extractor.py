@@ -1,9 +1,12 @@
 import json
 import logging
 import os
+from dataclasses import asdict
 from urllib.parse import urlencode
 
 import requests
+
+from .map_utils import GoogleStaticMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -59,14 +62,13 @@ class GoogleStaticMapsExtractor:
             logger.info(f"Saved image at {filename}")
 
         # save metadata
-        metadata = {
-            "lat": lat,
-            "lon": lon,
-            "zoom": zoom,
-            "scale": scale,
-            "img_size": img_size,
-            "type": "static",
-        }
+        metadata = GoogleStaticMetadata(
+            lat=lat,
+            lon=lon,
+            zoom=zoom,
+            scale=scale,
+            img_size=img_size,
+        )
         meta_filename = filename.replace(".png", ".json")
         with open(meta_filename, "w") as f_meta:
-            json.dump(metadata, f_meta)
+            json.dump(asdict(metadata), f_meta)

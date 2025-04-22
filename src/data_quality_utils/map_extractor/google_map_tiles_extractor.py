@@ -2,8 +2,11 @@ import json
 import logging
 import math
 import os
+from dataclasses import asdict
 
 import requests
+
+from .map_utils import GoogleTilesMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -69,13 +72,12 @@ class GoogleMapTilesExtractor:
             logger.info(f"Saved image at {filename}")
 
         # save metadata
-        metadata = {
-            "lat": lat,
-            "lon": lon,
-            "zoom": zoom,
-            "img_size": (256, 256),
-            "type": "tiles",
-        }
+        metadata = GoogleTilesMetadata(
+            lat=lat,
+            lon=lon,
+            zoom=zoom,
+            img_size=(256, 256),
+        )
         meta_filename = filename.replace(".png", ".json")
         with open(meta_filename, "w") as f_meta:
-            json.dump(metadata, f_meta)
+            json.dump(asdict(metadata), f_meta)
