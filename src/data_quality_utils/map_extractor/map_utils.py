@@ -6,7 +6,7 @@ from typing import Literal
 class BaseMetadata:
     lat: float
     lon: float
-    img_size: list[int]
+    img_size: tuple[int, int]
 
 
 @dataclass

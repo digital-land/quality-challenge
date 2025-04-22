@@ -42,7 +42,6 @@ class GoogleStaticMapsExtractor:
         """
         # get image
         static_maps_base_url = "https://maps.googleapis.com/maps/api/staticmap?"
-        img_size = [img_size[0], img_size[1]]
         params = {
             "center": f"{lat},{lon}",
             "zoom": zoom,

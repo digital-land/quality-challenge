@@ -94,8 +94,8 @@ def calculate_distances(
 def get_coordinate_point(
     lat: float,
     lon: float,
-    bbox: tuple[float],
-    img_size: tuple[int],
+    bbox: tuple[float] | None,
+    img_size: tuple[int, int],
     convert_coords: bool,
 ):
     """Get original tree coordinate point."""

@@ -36,7 +36,7 @@ class WMSExtractor:
         lon: float,
         offset: float,
         filename: str,
-        img_size: tuple[int] = (500, 500),
+        img_size: tuple[int, int] = (500, 500),
     ) -> None:
         """
         Download a WMS image around the given coordinates and save it with metadata.
@@ -68,7 +68,7 @@ class WMSExtractor:
             lat=lat,
             lon=lon,
             bbox=bbox,
-            img_size=list(img_size),
+            img_size=img_size,
         )
         meta_filename = filename.replace(".png", ".json")
         with open(meta_filename, "w") as f_meta:

@@ -11,7 +11,6 @@ import cv2
 import kagglehub
 import numpy as np
 from deepforest import main
-from matplotlib import pyplot as plt
 
 from data_quality_utils.map_extractor.map_utils import (
     BaseMetadata,
@@ -126,7 +125,7 @@ class TreeFinder:
         filename: str,
         convert_coords: bool = False,
         flag_threshold: float = 10,
-    ) -> tuple[float, bool, np.ndarray] | None:
+    ) -> tuple[float, bool, dict[str, float], tuple[int, int]] | None:
         """
         Finds the tree closest to the GPS coordinate in the image metadata.
 
@@ -186,11 +185,12 @@ class TreeFinder:
                 if not metadata:
                     logger.error(f"No metadata found for image {filename}")
                     continue
-                lat = metadata.get("lat")
-                lon = metadata.get("lon")
-                bbox = metadata.get("bbox", "")
-                zoom = metadata.get("zoom", "")
-                scale = metadata.get("scale", 1)
+
+                lat = metadata.lat
+                lon = metadata.lon
+                zoom = getattr(metadata, "zoom", None)
+                scale = getattr(metadata, "scale", 1)
+                bbox = getattr(metadata, "bbox", None)
                 img_size = image.shape[:2]
 
                 distances = calculate_distances(
