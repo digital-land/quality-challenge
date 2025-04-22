@@ -35,7 +35,7 @@ dependencies = [
     "pyproj (>=3.7.1,<4.0.0)",
     "contextily (>=1.6.2,<2.0.0)",
     "markitdown[pdf] (>=0.1.1,<0.2.0)",
-    "types-shapely (>=2.1.0.20250418,<3.0.0.0)"
+    "types-shapely (>=2.1.0.20250418,<3.0.0.0)",
     "kagglehub (>=0.3.11,<0.4.0)"
 ]
 
