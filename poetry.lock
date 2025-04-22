@@ -3894,7 +3894,7 @@ version = "2.2.5"
 description = "Fundamental package for array computing in Python"
 optional = false
 python-versions = ">=3.10"
-groups = ["main"]
+groups = ["main", "dev"]
 files = [
     {file = "numpy-2.2.5-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:1f4a922da1729f4c40932b2af4fe84909c7a6e167e6e99f71838ce3a29f3fe26"},
     {file = "numpy-2.2.5-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:b6f91524d31b34f4a5fee24f5bc16dcd1491b668798b6d85585d836c1e633a6a"},
@@ -7775,7 +7775,7 @@ version = "2.1.0.20250418"
 description = "Typing stubs for shapely"
 optional = false
 python-versions = ">=3.9"
-groups = ["main"]
+groups = ["dev"]
 files = [
     {file = "types_shapely-2.1.0.20250418-py3-none-any.whl", hash = "sha256:8b78842a726a5be4cc116945266f661d9ef2b6e22af34b4b949081cdad6634fa"},
     {file = "types_shapely-2.1.0.20250418.tar.gz", hash = "sha256:7637df81e75f7c66afc3c67f38314f746ede28cfa45217f0622127e5476b0f0c"},
@@ -8365,4 +8365,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = "~3.11.9"
-content-hash = "33ae6fb579803dace286c37b013e694eb9e43e52beb0cdd17f05e0c3c85ecd33"
+content-hash = "c04e504bec95906fbd8c78965186c32f770ebed19a4d60c5e950146d59092cda"
