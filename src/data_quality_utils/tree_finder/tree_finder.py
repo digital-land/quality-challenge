@@ -60,10 +60,17 @@ class TreeFinder:
 
     def _download_model_checkpoint(self) -> str:
         """Download and return the model checkpoint path."""
+        destination_path = "model_checkpoint.ckpt"
+
+        if os.path.exists(destination_path):
+            logging.info(
+                f"Model checkpoint already exists at {destination_path}, skipping download."
+            )
+            return destination_path
+
         download_path = kagglehub.dataset_download(
             "easzil/dataset", path="model.opendata_luftbild_dop60.patch400.ckpt"
         )
-        destination_path = "model_checkpoint.ckpt"
         shutil.copyfile(download_path, destination_path)
         logging.info(f"Downloaded model checkpoint to {destination_path}")
         return destination_path
