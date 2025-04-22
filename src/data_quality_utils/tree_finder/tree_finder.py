@@ -1,7 +1,6 @@
 import glob
 import json
 import logging
-import math
 import os
 import shutil
 import sys
@@ -14,8 +13,14 @@ import numpy as np
 from deepforest import main
 from matplotlib import pyplot as plt
 
-from .distance_utils import calculate_distances
-from .plotting_utils import generate_image
+from data_quality_utils.map_extractor.map_utils import (
+    BaseMetadata,
+    GoogleStaticMetadata,
+    GoogleTilesMetadata,
+    WMSMetadata,
+)
+
+from .distance_utils import calculate_distances, get_coordinate_point
 
 # silence some deepforest warnings
 warnings.filterwarnings(
@@ -86,25 +91,35 @@ class TreeFinder:
         )
         return pred_boxes
 
-    def _get_image_metadata(self, filename: str) -> dict | None:
-        """Load and return metadata for an image."""
-        metadada_filename = filename.replace(".png", ".json")
-        if not os.path.exists(metadada_filename):
-            return
-        with open(metadada_filename) as f:
-            metadata = json.load(f)
-        return metadata
+    def _get_image_metadata(self, filename: str) -> BaseMetadata | None:
+        """Load and return metadata as a structured dataclass."""
+        metadata_filename = filename.replace(".png", ".json")
+        if not os.path.exists(metadata_filename):
+            return None
 
-    def find_all_trees(self, filename: str) -> np.ndarray:
+        with open(metadata_filename) as f:
+            metadata_dict = json.load(f)
+
+        metadata_type = metadata_dict.get("type")
+        if metadata_type == "static":
+            return GoogleStaticMetadata(**metadata_dict)
+        elif metadata_type == "tiles":
+            return GoogleTilesMetadata(**metadata_dict)
+        elif metadata_type == "wms":
+            return WMSMetadata(**metadata_dict)
+        else:
+            raise ValueError(f"Unsupported metadata type: {metadata_type}")
+
+    def find_all_trees(self, filename: str) -> list[dict[str, float]]:
         """
-        Detects all trees in an image and overlays bounding boxes.
+        Detects all trees in an image and returns bounding boxes.
+
         :param filename: Path to the image file.
-        :return: Image with tree bounding boxes overlaid.
+        :return: A list of predicted bounding boxes as dictionaries.
         """
         image = cv2.imread(filename)
         pred_boxes = self._predict_boxes(image)
-        result_image = generate_image(image, pred_boxes)
-        return result_image
+        return pred_boxes
 
     def find_closest_tree(
         self,
@@ -114,25 +129,25 @@ class TreeFinder:
     ) -> tuple[float, bool, np.ndarray] | None:
         """
         Finds the tree closest to the GPS coordinate in the image metadata.
+
         :param filename: Path to the image file.
         :param convert_coords: Whether to convert coordinates from pseudo Mercator.
         :param flag_threshold: Distance threshold for flagging trees.
-        :return: Tuple of (distance in meters, flagged boolean, overlayed image).
+        :return: Tuple of (distance in meters, flagged boolean, closest box, coordinate point).
         """
         image = cv2.imread(filename)
-        image_copy = image.copy()
-        pred_boxes = self._predict_boxes(image)
-
         metadata = self._get_image_metadata(filename)
-        if not metadata:
-            logger.error(f"No metadata found for image {filename}")
-            return
-        lat = metadata.get("lat")
-        lon = metadata.get("lon")
-        bbox = metadata.get("bbox", "")
-        zoom = metadata.get("zoom", "")
-        scale = metadata.get("scale", 1)
+        if metadata is None:
+            raise FileNotFoundError("Metadata file not found")
+
+        lat = metadata.lat
+        lon = metadata.lon
+        zoom = getattr(metadata, "zoom", None)
+        scale = getattr(metadata, "scale", 1)
+        bbox = getattr(metadata, "bbox", None)
         img_size = image.shape[:2]
+
+        pred_boxes = self._predict_boxes(image)
 
         distances = calculate_distances(
             lat,
@@ -147,17 +162,13 @@ class TreeFinder:
         )
         distances.sort(key=lambda x: x[1])
 
+        point = get_coordinate_point(lat, lon, bbox, img_size, convert_coords)
+
         best_box = distances[0][2]
         best_dist = distances[0][1]
         flagged = best_dist >= flag_threshold
-        if convert_coords:
-            x_pixel = img_size[0] // 2
-            y_pixel = img_size[1] // 2
-        else:
-            x_pixel, y_pixel = TreeFinder.epsg4326_to_pixel(lat, lon, bbox, img_size)
 
-        result_image = generate_image(image_copy, best_box, (x_pixel, y_pixel))
-        return best_dist, flagged, result_image
+        return best_dist, flagged, best_box, point
 
     def get_stats(self, paths: list[str], types: list[str]) -> dict[str, list[float]]:
         """Compute distance statistics for tree predictions across multiple image sets."""

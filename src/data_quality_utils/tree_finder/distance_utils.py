@@ -1,4 +1,5 @@
 import math
+
 from geopy.distance import geodesic
 
 TILE_SIZE = 256
@@ -17,6 +18,7 @@ def pixel_to_epsg4326(
     lat = ymax - (y / img_height) * (ymax - ymin)
     return lon, lat
 
+
 def epsg4326_to_pixel(
     lat: float,
     lon: float,
@@ -32,6 +34,7 @@ def epsg4326_to_pixel(
     y_pixel = int(y_frac * height)
     return x_pixel, y_pixel
 
+
 def epsg3857_to_pixel(
     lat: float, lon: float, zoom: int, scale: float
 ) -> tuple[float, float]:
@@ -44,6 +47,7 @@ def epsg3857_to_pixel(
     y = (0.5 - math.log((1 + siny) / (1 - siny)) / (4 * math.pi)) * map_size
     return x, y
 
+
 def pixel_to_epsg3857(
     x: float, y: float, zoom: int, scale: float
 ) -> tuple[float, float]:
@@ -53,6 +57,7 @@ def pixel_to_epsg3857(
     n = math.pi - 2.0 * math.pi * y / map_size
     lat = math.degrees(math.atan(math.sinh(n)))
     return lat, lon
+
 
 def calculate_distances(
     lat: float,
@@ -72,14 +77,10 @@ def calculate_distances(
         y_center = (box["ymin"] + box["ymax"]) / 2
 
         if convert_coords:
-            center_px, center_py = epsg3857_to_pixel(
-                lat, lon, zoom, scale
-            )
+            center_px, center_py = epsg3857_to_pixel(lat, lon, zoom, scale)
             abs_px = center_px - (img_width / 2) + x_center
             abs_py = center_py - (img_height / 2) + y_center
-            pred_lat, pred_lon = pixel_to_epsg3857(
-                abs_px, abs_py, zoom, scale
-            )
+            pred_lat, pred_lon = pixel_to_epsg3857(abs_px, abs_py, zoom, scale)
         else:
             pred_lon, pred_lat = pixel_to_epsg4326(
                 x_center, y_center, img_width, img_height, bbox
@@ -88,3 +89,19 @@ def calculate_distances(
         box_dist = geodesic((pred_lat, pred_lon), (lat, lon)).meters
         distances.append(((pred_lat, pred_lon), box_dist, box))
     return distances
+
+
+def get_coordinate_point(
+    lat: float,
+    lon: float,
+    bbox: tuple[float],
+    img_size: tuple[int],
+    convert_coords: bool,
+):
+    """Get original tree coordinate point."""
+    if convert_coords:
+        x_pixel = img_size[0] // 2
+        y_pixel = img_size[1] // 2
+    else:
+        x_pixel, y_pixel = epsg4326_to_pixel(lat, lon, bbox, img_size)
+    return (x_pixel, y_pixel)
