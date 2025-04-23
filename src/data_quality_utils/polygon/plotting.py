@@ -1,3 +1,5 @@
+from typing import Any
+
 import numpy as np
 import plotly.graph_objects as go
 from geopandas import GeoDataFrame, GeoSeries
@@ -75,6 +77,80 @@ def extract_coordinates(
     return lons, lats
 
 
+def _make_slider_steps(
+    base_color: tuple[int, int, int], slider_index: int, n_steps=11
+) -> list[dict[Any, Any]]:
+    """Generates the configure dictionary for a transparency slider, adding n_steps
+    alpha values to the base colour to give different opacity settings.
+
+    :param base_color: Colour to generate opacity levels for as an RGB tuple.
+    :param slider_index: Index of slider in plotly figure
+    :param n_steps: Number of alpha values to include, defaults to 11
+    :return: Config dict for slider.
+    """
+    return [
+        dict(
+            method="restyle",
+            args=[
+                {
+                    "fillcolor": [
+                        f"rgba({base_color[0]}, {base_color[1]}, {base_color[2]}, {alpha_step:.2f})"
+                    ]
+                },
+                [slider_index],
+            ],
+            label=f"{alpha_step:.2f}",
+        )
+        for alpha_step in np.linspace(0, 1, n_steps)
+    ]
+
+
+def plot_multipolygon(
+    polygon: MultiPolygon,
+    fig: go.Figure,
+    name: str,
+    fill_color: None | tuple[int, int, int] = None,
+    fill_alpha: None | float = 0.3,
+    line_color: str = "black",
+    line_width: int = 1,
+) -> go.Figure:
+    """Plot a (Multi)polygon on a plotly figure.
+
+    :param polygon: Polygon to plot
+    :param fig: Plotly figure to plot onto
+    :param name: Name to give the trace that is added to the plot
+    :param fill_color: Optionally fill polygon with RGB colour, defaults to None
+    :param fill_alpha: Optional opacity if filling polygon, defaults to 0.3
+    :param line_color: Outline colour for polygon, defaults to "black"
+    :param line_width: Width of polygon outline, defaults to 1
+    :return: modified figure
+    """
+    lons, lats = extract_coordinates(polygon)
+
+    if fill_color:
+        fill_color_str = (
+            f"rgba({fill_color[0]}, {fill_color[1]}, {fill_color[2]}, {fill_alpha})"
+        )
+        fill = "toself"
+    else:
+        fill_color_str = None
+        fill = "none"
+
+    fig.add_trace(
+        go.Scattermap(
+            lon=lons,
+            lat=lats,
+            mode="lines",
+            fill=fill,
+            fillcolor=fill_color_str,
+            line=dict(color=line_color, width=line_width),
+            name=name,
+            showlegend=True,
+        )
+    )
+    return fig
+
+
 def plot_area_with_sliders(
     original_border: MultiPolygon,
     base_features: MultiPolygon,
@@ -98,51 +174,21 @@ def plot_area_with_sliders(
     :return: None
     """
 
-    diff_lons, diff_lats = extract_coordinates(difference_area)
-    feature_lons, feature_lats = extract_coordinates(base_features)
-    original_lons, original_lats = extract_coordinates(original_border)
-    new_lons, new_lats = extract_coordinates(new_border)
-
     # Find centre for plotting
     boundary_centre = original_border.centroid
     centre_lon, centre_lat = boundary_centre.x, boundary_centre.y
 
     # Get colours and adjust alphas
-    diff_fill_colour = f"rgba({diff_rgb[0]}, {diff_rgb[1]}, {diff_rgb[2]}, {alpha})"
     diff_line_colour = (
         f"rgba({diff_rgb[0]}, {diff_rgb[1]}, {diff_rgb[2]}, {min(alpha+0.1, 1)})"
     )
-    feature_fill_colour = f"rgba({base_rgb[0]}, {base_rgb[1]}, {base_rgb[2]}, {alpha})"
     feature_line_colour = (
         f"rgba({base_rgb[0]}, {base_rgb[1]}, {base_rgb[2]}, {min(alpha+0.1, 1)})"
     )
 
     # Prep dicts for plotly alpha sliders - steps of 0.1
-    diff_steps = []
-    feature_steps = []
-    alphas = np.linspace(0, 1, 11)
-    for _, alpha_step in enumerate(alphas):
-        alpha_step = round(alpha_step, 2)
-        diff_step_color = (
-            f"rgba({diff_rgb[0]}, {diff_rgb[1]}, {diff_rgb[2]}, {alpha_step})"
-        )
-        feature_step_color = (
-            f"rgba({base_rgb[0]}, {base_rgb[1]}, {base_rgb[2]}, {alpha_step})"
-        )
-
-        diff_step = dict(
-            method="restyle",
-            args=[{"fillcolor": [diff_step_color]}, [0]],
-            label=str(alpha_step),
-        )
-        diff_steps.append(diff_step)
-
-        feature_step = dict(
-            method="restyle",
-            args=[{"fillcolor": [feature_step_color]}, [1]],
-            label=str(alpha_step),
-        )
-        feature_steps.append(feature_step)
+    diff_steps = _make_slider_steps(base_color=diff_rgb, slider_index=0)
+    feature_steps = _make_slider_steps(base_color=base_rgb, slider_index=1)
 
     diff_sliders = [
         dict(
@@ -164,56 +210,29 @@ def plot_area_with_sliders(
 
     # Start base plots and figure
     fig = go.Figure()
-    fig.add_trace(
-        go.Scattermap(
-            lon=diff_lons,
-            lat=diff_lats,
-            mode="lines",
-            fill="toself",
-            fillcolor=diff_fill_colour,
-            line=dict(color=diff_line_colour, width=1),
-            name="Concerning Areas",
-            showlegend=True,
-        )
+    fig = plot_multipolygon(
+        difference_area,
+        fig=fig,
+        name="Concerning Areas",
+        fill_color=diff_rgb,
+        fill_alpha=alpha,
+        line_color=diff_line_colour,
     )
 
-    fig.add_trace(
-        go.Scattermap(
-            lon=feature_lons,
-            lat=feature_lats,
-            mode="lines",
-            fill="toself",
-            fillcolor=feature_fill_colour,
-            line=dict(color=feature_line_colour, width=1),
-            name="Base Features",
-            showlegend=True,
-        )
+    fig = plot_multipolygon(
+        base_features,
+        fig=fig,
+        name="Base Features",
+        fill_color=base_rgb,
+        fill_alpha=alpha,
+        line_color=feature_line_colour,
     )
 
-    # Now plot boundary lines
-    fig.add_trace(
-        go.Scattermap(
-            lon=original_lons,
-            lat=original_lats,
-            mode="lines",
-            fill="none",
-            line=dict(color="black", width=3),
-            name="Original Boundary",
-            showlegend=True,
-        )
+    fig = plot_multipolygon(
+        original_border, fig=fig, name="Original Boundary", line_width=3
     )
 
-    fig.add_trace(
-        go.Scattermap(
-            lon=new_lons,
-            lat=new_lats,
-            mode="lines",
-            fill="none",
-            line=dict(color="red", width=1),
-            name="New Boundary",
-            showlegend=True,
-        )
-    )
+    fig = plot_multipolygon(new_border, fig=fig, name="New Boundary", line_color="red")
 
     # Zoom in for plot - gets in close to area
     initial_zoom = 15
