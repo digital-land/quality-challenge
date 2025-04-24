@@ -31,59 +31,32 @@ As an example, most LPAs have a planning policy page listing its conservation ar
 
 We record a link to these source web pages as the `documentation-url` in our [source](https://digital-land.github.io/specification/dataset/source/) configuration.
 
-## Finding links to data sources
+Can we find a way to automatically locate the correct webpage for the `documentation-url` of an entity?
 
-LPAs are also expected provide their conservation areas as data, following our [guidance](https://www.planning.data.gov.uk/guidance/specifications/conservation-area).
+## Comparing entities against documents
 
-Our [endpoint](https://digital-land.github.io/specification/dataset/endpoint/) configuration contains an `endpoint-url`
-which we check and collect the data. Each night the platform makes a request from each endpoint,
-the [log](https://datasette.planning.data.gov.uk/digital-land/log) contains a record of the request
-and saves the data downloaded as a [resource](https://datasette.planning.data.gov.uk/digital-land/resource).
-
-We expect the `endpoint-url` to be documented and linked to from a webpage which is recorded as `documentation-url` for the endpoint.
-This may be the same webpage as the information source page, but may also be a page on another domain.
-For example, [Barnet open data](https://open.barnet.gov.uk/dataset/20yo8/conservation-areas).
-
-In this case we expect there to be a hyperlink from the information source page to the endpoint documentation page,
-and from the endpoint documentation page to the endpoint.
-
-We also expect there to be a statement about the copyright and licensing of the data, which we currently record against the source.
-
-* [provision](https://datasette.planning.data.gov.uk/digital-land/provision) contains the organisations expected to have information about each dataset.
-* [organisation](https://datasette.planning.data.gov.uk/digital-land/organisation) dataset includes a link to each organisation's website.
-* [source](https://datasette.planning.data.gov.uk/digital-land/source) contains existing source pages
-* [endpoint](https://datasette.planning.data.gov.uk/digital-land/endpoint) contains existing endpoint pages, the URL where we download data from
-
-*Our source and endpoint data is currently very messy. The source dataset contains placeholder entries with blank urls, and many of the documentation-urls are broken links, or point to endpoint webpages. We need to migrate to the source documentation-url linking to the information page, and the endpoint documentation-urls have been recorded against the source.*
-
-We are adding datasets as we work through our backlog of [planning considerations](https://design.planning.data.gov.uk/planning-consideration/)
-many of which are devolved to LPAs (currently [311 organisations](https://datasette.planning.data.gov.uk/digital-land/role_organisation?_sort=rowid&end_date__isblank=1&role__exact=local-planning-authority)). Finding sources for a new dataset on these LPA websites is timeconsuming.
-
-Once we have source and endpoint data, we need to monitor the LPA sites for changes, in particular publication of new endpoints,
-and changes to licensing is a time-consuming and error-prone activity.
-
-## Comparing entities against documents and documentation
-
-The planning data platform is an index of material information provided by LPAs and other organisations.
-
-Each entity includes a link to the `documentation-url`, the webpage with human readable content describing the entity, and a `document-url` usually a PDF containint the material information, including the `name` of the entity, a `start-date` (when the entity came into force)
-and where the entity applies. For example:
+In addition to the `documentation-url`, the webpage with human readable content describing the entity, from the above challenge, every entity has a `document-url`. This is usually a PDF containing the material information, including the `name` of the entity, a `start-date` (when the entity came into force) and where the entity applies. For example:
 
 * The entity [6100046](https://www.planning.data.gov.uk/entity/6100046) represents an Article 4 Direction ([PDF](https://www.camden.gov.uk/documents/20142/4842163/South+Hill+Park+Article+4.pdf/47a3f006-5739-9ac3-363b-b0025e487ec4)). The direction removes permitted development rights from a single area represented by the entity [https://www.planning.data.gov.uk/entity/7010002601], found using a [datasette query](https://datasette.planning.data.gov.uk/article-4-direction-area?sql=select+entity%2C+prefix%2C+reference%2C+name%2C+geojson%2C+geometry%2C+json%2C+%0D%0A++json_extract+%28json%2C+%27%24.article-4-direction%27%29+AS+article_4_direction%2C+organisation_entity%2C+start_date%2C+end_date+from+entity+where+article_4_direction+%3D+%27A4SHP1%27).
 
-Can we highlight where the name, date and other information in our data differs or is missing from those in these webpages and documents?
+Can we find a way to automatically collect the correct document from the authoritative website?
 
-For example, we manually reviewed [Conservation areas in Barnet](https://digital-land.github.io/barnet-conservation-areas/). Can we scale this approach to provide similar reporting for other LPAs and datasets?
+## Finding possible duplicate entities
+Often, the same real world location such as a specific conservation area, is recorded multiple times in the planning data as different entities. There should be a 1:1 mapping between real entities and entity records in the data.
 
-## Finding possibly duplicate entities
+Can we find a way to automatically flag entities that are likely to be duplicates?
 
 ## Comparing boundaries to geographical features
+Entities such as conservation areas have a geographic extent that is typically recorded in the relevant legal instrument (document-url). In order to make this more accessible, planning.data.gov.uk extracts the boundaries of the entity as a GPS polygon. The process for generating these can produce mistakes but without a ground truth polygon to compare to, it is difficult to indentify these. One sign that a polygon may be incorrect is when the boundary of the entity does not follow local geographic features.
 
-## Finding and reconciling information from alternative sources
+For example, a conservation area may cover an area of farmland bounded on one side by a road and a woodland on the other. If the polygon broadly followed those boundaries but diverged from the woodland edge and cut off a corner of the farmland in the process, this error in the polygon data would be flagged by a system that could see the polygon does not follow the nearby geographic feature (the woodland).
 
-Can we find notices and links to other official information about entities to help users with reconciliation and improve the trustworthy of data on the platform?
+Can we find a way to obtain polygons for geographic features and flag entities whose polygons do not follow the local features?
 
-* [Knotty Ash]() is a conservation area
+## Checking Tree Protection Orders
+One key piece of data associated with a tree protect order is the location of the tree. In the planning data, this location is represented by a GPS co-ordinate. Errors can occur in this data in many ways but one clear sign that the data is wrong would be if there was no tree at the listed co-ordinates.
+
+Can we find a way to automatically detect whether a tree is present at a GPS co-ordinate?
 
 # Resources
 
