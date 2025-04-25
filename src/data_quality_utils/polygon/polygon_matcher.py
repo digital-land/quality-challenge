@@ -235,7 +235,6 @@ class PolygonMatcher:
         self,
         base_features_df: GeoSeries,
         diff_df: GeoDataFrame,
-        area_threshold: float = 100,
     ) -> float:
         """Calculates the total area of areas of concern, red on the map.
 
