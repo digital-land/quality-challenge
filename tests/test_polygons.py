@@ -213,3 +213,21 @@ def test_area_proportions(
     )
     # Check sums are correct
     assert area_proportion == 100 * sum(diff_df.area) / sum(aligned_df.area)
+
+
+def test_known_area_proportions(
+    rectangle_df: GeoDataFrame, small_square_df: GeoDataFrame
+):
+    matcher = PolygonMatcher()
+    aligned_df = small_square_df.copy()
+    diff_df = rectangle_df.copy()
+    features_df = rectangle_df.copy()
+    diff_df = diff_df.to_crs(matcher.mercator_crs)
+    aligned_df = aligned_df.to_crs(matcher.mercator_crs)
+    features_df = features_df.to_crs(matcher.mercator_crs)
+    features_series = features_df.buffer(0)
+    # For square and rectangle of half its size, should be 50% overlap
+    area_proportion = matcher.large_discrepancy_proportion(
+        features_series, aligned_df, diff_df
+    )
+    assert area_proportion == 50
