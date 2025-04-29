@@ -8,7 +8,9 @@ BASE_CRS = "EPSG:4326"
 MERCATOR_CRS = "EPSG:3857"
 
 
-def create_square_coords(lat: int = 0, long: int = 0, add_buffer=0.01) -> Polygon:
+def create_square_coords(
+    lat: int = 0, long: int = 0, add_buffer: float = 0.01
+) -> Polygon:
     poly_list = [
         (long + add[0], lat + add[1])
         for add in [
@@ -34,13 +36,13 @@ def square_df() -> GeoDataFrame:
 
 
 @pytest.fixture
-def small_square_df(add_buffer=0.001) -> GeoDataFrame:
+def small_square_df(add_buffer: float = 0.001) -> GeoDataFrame:
     base_list = create_square_coords(add_buffer=add_buffer)
     return create_polygon_df(base_list, BASE_CRS)
 
 
 @pytest.fixture
-def rectangle_df(long: float = 0, lat: float = 0):
+def rectangle_df(long: float = 0, lat: float = 0) -> GeoDataFrame:
     return create_polygon_df(
         [
             (long + add[0], lat + add[1])
@@ -130,13 +132,16 @@ def test_overlapping_polygons(
 ):
     matcher = PolygonMatcher(polygon_snap_distance=100)
     base_df = small_square_df.copy()
+    # Create new polygon shifted from square
     features_df = shifted_pentagon_df.copy()
     features_df = features_df.to_crs(matcher.mercator_crs)
     features_series = features_df.buffer(0)
+    # Align to shifted features
     aligned_df, diff_df = matcher.match_polygon_to_features(base_df, features_series)
     diff_area = diff_df.geometry[0].area
     aligned_area = aligned_df.geometry[0].area
 
+    # Check alignment occurred
     assert diff_area > 0.0
     assert aligned_area > 0.0
 
@@ -150,10 +155,11 @@ def test_large_areas_list_calculations(
     aligned_df = aligned_df.to_crs(matcher.mercator_crs)
     diff_df = diff_df.to_crs(matcher.mercator_crs)
     aligned_series = aligned_df.buffer(0)
+    # For overlapping polygons, check area calculated correctly
     large_area_list = matcher.calculate_area_of_large_discrepancies(
         aligned_series, diff_df
     )
-
+    # Triangular overlap area should be in list
     assert diff_df.area[0] in large_area_list
 
 
@@ -164,10 +170,11 @@ def test_large_areas_empty_list(pentagon_df: GeoDataFrame, triangle_df: GeoDataF
     aligned_df = aligned_df.to_crs(matcher.mercator_crs)
     diff_df = diff_df.to_crs(matcher.mercator_crs)
     aligned_series = aligned_df.buffer(0)
+    # Set threshold too high to capture anything
     large_area_empty_list = matcher.calculate_area_of_large_discrepancies(
         aligned_series, diff_df, area_threshold=2 * aligned_df.area[0]
     )
-
+    # Check no areas returned
     assert not large_area_empty_list
 
 
@@ -181,7 +188,7 @@ def test_large_areas_total(pentagon_df: GeoDataFrame, triangle_df: GeoDataFrame)
     large_area_total = matcher.calculate_total_area_of_discrepancies(
         aligned_series, diff_df
     )
-
+    # Check area function correctly sums areas
     assert sum(diff_df.area) == large_area_total
 
 
@@ -200,8 +207,9 @@ def test_area_proportions(
     aligned_df = aligned_df.to_crs(matcher.mercator_crs)
     features_df = features_df.to_crs(matcher.mercator_crs)
     features_series = features_df.buffer(0)
+    # For non-trivial overlaps calculate proportions
     area_proportion = matcher.large_discrepancy_proportion(
         features_series, aligned_df, diff_df
     )
-
+    # Check sums are correct
     assert area_proportion == 100 * sum(diff_df.area) / sum(aligned_df.area)
