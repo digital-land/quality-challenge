@@ -204,6 +204,76 @@ class PolygonMatcher:
 
         return aligned_df, diff_df
 
+    def get_plotting_polygons(
+        self,
+        original_df: GeoDataFrame,
+        base_features_df: GeoSeries,
+        aligned_df: GeoDataFrame,
+        diff_df: GeoDataFrame,
+    ) -> tuple[
+        MultiPolygon,
+        MultiPolygon,
+        MultiPolygon,
+        MultiPolygon,
+    ]:
+        """Standardises forms of polygon_matching polygons for plotting.
+
+        :param original_df: GeoDataFrame with original boundary.
+        :param base_features_df: GeoSeries with base polygon features from Open Street Map.
+        :param aligned_df: GeoDataFrame with new boundary.
+        :param diff_df: GeoDataFrame with areas that differ to original boundary.
+        :return: Tuple of standardised Polygons/Multipolygons in same order.
+        """
+        original_border = original_df["geometry"].to_crs(self.base_crs)[0]
+
+        new_border = MultiPolygon(
+            list(aligned_df["geometry"].explode().to_crs(self.base_crs))
+        )
+        base_features = MultiPolygon(
+            list(base_features_df.explode().to_crs(self.base_crs))
+        )
+        difference_area = make_valid(base_features).intersection(
+            diff_df["geometry"].to_crs(self.base_crs)
+        )
+        difference_area = difference_area.explode()
+        difference_area = difference_area[
+            difference_area.geometry.geom_type.isin(["Polygon", "MultiPolygon"])
+        ]
+        difference_area = MultiPolygon(list(difference_area))
+
+        return original_border, base_features, new_border, difference_area
+
+    def filter_uninteresting_polygons(
+        self,
+        difference_area: MultiPolygon,
+        area_threshold: float = 10,
+        thinness_buffer: float = 0.5,
+        bounding_box_threshold: float = 0.5,
+    ) -> MultiPolygon:
+        """Filters difference polygons based on checks for whether or not they area likely to be false positives.
+
+        :param difference_area: MultiPolygon containing geometries to filter.
+        :param area_threshold: Minimum threshold (m^2) for areas. Areas below are filtered out, defaults to 10.
+        :param thinness_buffer: Removes chunk (m) of area. Areas that disapear are too thin and are filtered out, defaults to 0.5.
+        :param bounding_box_threshold: Overlap required to filter out rectangular like objects. If bounding box is too similar
+            to polygon, unlikely to be interesting, defaults to 0.5.
+        """
+        diff_series = GeoSeries(difference_area).explode()
+        diff_series = diff_series.set_crs("EPSG:4326", allow_override=True).to_crs(
+            "EPSG:3857"
+        )
+        small_area_mask = diff_series.area > area_threshold
+        bounding_box_mask = (
+            diff_series.area / diff_series.minimum_rotated_rectangle().area
+            < bounding_box_threshold
+        )
+        thinness_mask = diff_series.buffer(-thinness_buffer).area > 0
+        filtered_diff_series = diff_series[
+            small_area_mask & (bounding_box_mask | thinness_mask)
+        ]
+        filtered_diff_series = filtered_diff_series.to_crs("EPSG:4326")
+        return MultiPolygon(list(filtered_diff_series))
+
     def calculate_area_of_large_discrepancies(
         self,
         base_features_df: GeoSeries,
