@@ -60,7 +60,7 @@ def _make_slider_steps(
                 },
                 [slider_index],
             ],
-            label=f"{alpha_step:.2f}",
+            label=f"{alpha_step*100:.0f}%",
         )
         for alpha_step in np.linspace(0, 1, n_steps)
     ]
@@ -156,7 +156,7 @@ def plot_area_with_sliders(
     diff_sliders = [
         dict(
             active=3,
-            currentvalue={"prefix": "Added Area alpha: ", "visible": True},
+            currentvalue={"prefix": "Added Area Opacity: ", "visible": True},
             pad={"t": 20},
             steps=diff_steps,
         )
@@ -165,7 +165,7 @@ def plot_area_with_sliders(
     feature_sliders = [
         dict(
             active=3,
-            currentvalue={"prefix": "Base Features alpha: ", "visible": True},
+            currentvalue={"prefix": "Base Features Opacity: ", "visible": True},
             pad={"t": 120},
             steps=feature_steps,
         )
@@ -195,7 +195,9 @@ def plot_area_with_sliders(
         original_border, fig=fig, name="Original Boundary", line_width=3
     )
 
-    fig = plot_multipolygon(new_border, fig=fig, name="New Boundary", line_color="red")
+    fig = plot_multipolygon(
+        new_border, fig=fig, name="Algorithm Boundary", line_color="red"
+    )
 
     # Zoom in for plot - gets in close to area
     initial_zoom = 15
