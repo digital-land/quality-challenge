@@ -2,46 +2,7 @@ from typing import Any
 
 import numpy as np
 import plotly.graph_objects as go
-from geopandas import GeoDataFrame, GeoSeries
 from shapely import LineString, MultiLineString, MultiPolygon
-from shapely.validation import make_valid
-
-
-def get_plotting_polygons(
-    original_df: GeoDataFrame,
-    base_features_df: GeoSeries,
-    aligned_df: GeoDataFrame,
-    diff_df: GeoDataFrame,
-    base_crs: str,
-) -> tuple[
-    MultiPolygon,
-    MultiPolygon,
-    MultiPolygon,
-    MultiPolygon,
-]:
-    """Standardises forms of polygon_matching polygons for plotting.
-
-    :param original_df: GeoDataFrame with original boundary.
-    :param base_features_df: GeoSeries with base polygon features from Open Street Map.
-    :param aligned_df: GeoDataFrame with new boundary.
-    :param diff_df: GeoDataFrame with areas that differ to original boundary.
-    :param base_crs: Co-ordinate reference system we use as a base.
-    :return: Tuple of standardised Polygons/Multipolygons in same order.
-    """
-    original_border = original_df["geometry"].to_crs(base_crs)[0]
-
-    new_border = MultiPolygon(list(aligned_df["geometry"].explode().to_crs(base_crs)))
-    base_features = MultiPolygon(list(base_features_df.explode().to_crs(base_crs)))
-    difference_area = make_valid(base_features).intersection(
-        diff_df["geometry"].to_crs(base_crs)
-    )
-    difference_area = difference_area.explode()
-    difference_area = difference_area[
-        difference_area.geometry.geom_type.isin(["Polygon", "MultiPolygon"])
-    ]
-    difference_area = MultiPolygon(list(difference_area))
-
-    return original_border, base_features, new_border, difference_area
 
 
 def extract_coordinates(
@@ -99,7 +60,7 @@ def _make_slider_steps(
                 },
                 [slider_index],
             ],
-            label=f"{alpha_step:.2f}",
+            label=f"{alpha_step*100:.0f}%",
         )
         for alpha_step in np.linspace(0, 1, n_steps)
     ]
@@ -160,6 +121,7 @@ def plot_area_with_sliders(
     diff_rgb: tuple[int, int, int] = (255, 0, 0),
     base_rgb: tuple[int, int, int] = (0, 0, 255),
     alpha: float = 0.3,
+    save_file_name: str | None = None,
 ) -> None:
     """Creates interactive plot for all areas.
 
@@ -171,6 +133,7 @@ def plot_area_with_sliders(
     :param base_rgb: RGB colour for base features.
     :param alpha: Initial opacity of base_features and area differences.
     :param area_name: Name of area
+    :param save_file_name: Name of file if saving
     :return: None
     """
 
@@ -193,7 +156,7 @@ def plot_area_with_sliders(
     diff_sliders = [
         dict(
             active=3,
-            currentvalue={"prefix": "Added Area alpha: ", "visible": True},
+            currentvalue={"prefix": "Added Area Opacity: ", "visible": True},
             pad={"t": 20},
             steps=diff_steps,
         )
@@ -202,7 +165,7 @@ def plot_area_with_sliders(
     feature_sliders = [
         dict(
             active=3,
-            currentvalue={"prefix": "Base Features alpha: ", "visible": True},
+            currentvalue={"prefix": "Base Features Opacity: ", "visible": True},
             pad={"t": 120},
             steps=feature_steps,
         )
@@ -232,7 +195,9 @@ def plot_area_with_sliders(
         original_border, fig=fig, name="Original Boundary", line_width=3
     )
 
-    fig = plot_multipolygon(new_border, fig=fig, name="New Boundary", line_color="red")
+    fig = plot_multipolygon(
+        new_border, fig=fig, name="Algorithm Boundary", line_color="red"
+    )
 
     # Zoom in for plot - gets in close to area
     initial_zoom = 15
@@ -292,5 +257,7 @@ def plot_area_with_sliders(
     )
 
     fig.show()
+    if save_file_name:
+        fig.write_html(save_file_name)
 
     return None
