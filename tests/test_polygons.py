@@ -42,11 +42,32 @@ def small_square_df(add_buffer: float = 0.001) -> GeoDataFrame:
 
 
 @pytest.fixture
+def very_small_square_df(add_buffer: float = 10**-12) -> GeoDataFrame:
+    base_list = create_square_coords(add_buffer=add_buffer)
+    return create_polygon_df(base_list, BASE_CRS)
+
+
+@pytest.fixture
 def rectangle_df(long: float = 0, lat: float = 0) -> GeoDataFrame:
     return create_polygon_df(
         [
             (long + add[0], lat + add[1])
             for add in [(0.001, 0.001), (0.001, -0.001), (0, -0.001), (0, 0.001)]
+        ],
+        BASE_CRS,
+    )
+
+
+@pytest.fixture
+def L_shape_df() -> GeoDataFrame:
+    return create_polygon_df(
+        [
+            (0, 0),
+            (0.002, 0),
+            (0.002, 0.0001),
+            (0.0001, 0.0001),
+            (0.0001, 0.002),
+            (0, 0.002),
         ],
         BASE_CRS,
     )
@@ -231,3 +252,54 @@ def test_known_area_proportions(
         features_series, aligned_df, diff_df
     )
     assert area_proportion == 50
+
+
+def test_very_thin_polygon_filtered(very_small_square_df: GeoDataFrame):
+    matcher = PolygonMatcher()
+    diff_df = very_small_square_df.copy()
+    diff_polygon = diff_df["geometry"].iloc[0]
+    # Create very thin polygon, with 0 area threshold and always false bounding_box_threshold
+    # such that we are checking for filtering via thinness not area.
+    filtered_diff_polygon = matcher.filter_uninteresting_polygons(
+        diff_polygon, area_threshold=0, bounding_box_threshold=0
+    )
+
+    assert filtered_diff_polygon.area == 0
+
+
+def test_thicker_polygon_not_filtered(small_square_df: GeoDataFrame):
+    matcher = PolygonMatcher()
+    diff_df = small_square_df.copy()
+    diff_polygon = diff_df["geometry"].iloc[0]
+    # Create thicker polygon, with 0 area threshold and always false bounding_box_threshold
+    # such that we are checking it does not filter on thinness.
+    filtered_diff_polygon = matcher.filter_uninteresting_polygons(
+        diff_polygon, area_threshold=0, bounding_box_threshold=0
+    )
+
+    assert filtered_diff_polygon.area != 0
+
+
+def test_square_bounding_box_filtered(small_square_df: GeoDataFrame):
+    matcher = PolygonMatcher()
+    diff_df = small_square_df.copy()
+    diff_polygon = diff_df["geometry"].iloc[0]
+    # Create square, with 0 area threshold and always false thinness_buffer
+    # such that we are checking for filtering via bounding_box regularity not area or thinness.
+    filtered_diff_polygon = matcher.filter_uninteresting_polygons(
+        diff_polygon, area_threshold=0, thinness_buffer=10**10
+    )
+
+    assert filtered_diff_polygon.area == 0
+
+
+def test_L_shape_bounding_box_filtered(L_shape_df: GeoDataFrame):
+    matcher = PolygonMatcher()
+    diff_df = L_shape_df.copy()
+    diff_polygon = diff_df["geometry"].iloc[0]
+    # L shape should not be filtered by bounding box method as irregular
+    filtered_diff_polygon = matcher.filter_uninteresting_polygons(
+        diff_polygon, area_threshold=0, thinness_buffer=10**10
+    )
+
+    assert filtered_diff_polygon.area != 0
