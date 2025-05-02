@@ -35,7 +35,7 @@ def epsg4326_to_pixel(
     return x_pixel, y_pixel
 
 
-def epsg3857_to_pixel(
+def epsg3857_to_tile(
     lat: float, lon: float, zoom: int, scale: float
 ) -> tuple[float, float]:
     """Convert EPSG:3857 coordinates to pixel coordinates."""
@@ -48,7 +48,7 @@ def epsg3857_to_pixel(
     return x, y
 
 
-def pixel_to_epsg3857(
+def tile_to_epsg3857(
     x: float, y: float, zoom: int, scale: float
 ) -> tuple[float, float]:
     """Convert pixel coordinates to EPSG:3857 (lat/lon)."""
@@ -77,10 +77,10 @@ def calculate_distances(
         y_center = (box["ymin"] + box["ymax"]) / 2
 
         if convert_coords:
-            center_px, center_py = epsg3857_to_pixel(lat, lon, zoom, scale)
+            center_px, center_py = epsg3857_to_tile(lat, lon, zoom, scale)
             abs_px = center_px - (img_width / 2) + x_center
             abs_py = center_py - (img_height / 2) + y_center
-            pred_lat, pred_lon = pixel_to_epsg3857(abs_px, abs_py, zoom, scale)
+            pred_lat, pred_lon = tile_to_epsg3857(abs_px, abs_py, zoom, scale)
         else:
             pred_lon, pred_lat = pixel_to_epsg4326(
                 x_center, y_center, img_width, img_height, bbox
