@@ -53,8 +53,8 @@ For example, a conservation area may cover an area of farmland bounded on one si
 
 Can we find a way to obtain polygons for geographic features and flag entities whose polygons do not follow the local features?
 
-## Checking Tree Protection Orders
-One key piece of data associated with a tree protect order is the location of the tree. In the planning data, this location is represented by a GPS co-ordinate. Errors can occur in this data in many ways but one clear sign that the data is wrong would be if there was no tree at the listed co-ordinates.
+## Checking Tree Preservation Orders
+One key piece of data associated with a tree preservation order is the location of the tree. In the planning data, this location is represented by a GPS co-ordinate. Errors can occur in this data in many ways but one clear sign that the data is wrong would be if there was no tree at the listed co-ordinates.
 
 Can we find a way to automatically detect whether a tree is present at a GPS co-ordinate?
 
